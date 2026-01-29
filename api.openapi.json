@@ -1,0 +1,2404 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Default module",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/form/{slug}": {
+      "post": {
+        "summary": "createDoc",
+        "deprecated": false,
+        "description": "Create a {slug} document",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "insert": {
+                    "type": "object",
+                    "properties": {
+                      "any": {
+                        "nullable": true,
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "array"
+                          },
+                          {
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "any"
+                    ]
+                  }
+                },
+                "required": [
+                  "insert"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "get": {
+        "summary": "getDocs",
+        "deprecated": false,
+        "description": "Read {slug} docs. Can only read created and shared docs.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "where",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "admin_option",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SQLRow"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "updateDocs",
+        "deprecated": false,
+        "description": "Update a {slug} document. Can only update created, shared, and unverified docs.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "where",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "insert": {
+                    "type": "object",
+                    "properties": {
+                      "any": {
+                        "nullable": true,
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "array"
+                          },
+                          {
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "any"
+                    ]
+                  }
+                },
+                "required": [
+                  "insert"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "deleteDocs",
+        "deprecated": false,
+        "description": "Delete {slug} docs. Can only delete created, shared, and unverified docs.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "where",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "admin_option",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                },
+                "example": true
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/form/{slug}/{id}": {
+      "put": {
+        "summary": "requestVerify",
+        "deprecated": false,
+        "description": "Request for {slug} doc with id {id} to be verified.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "shareDoc",
+        "deprecated": false,
+        "description": "Share or Un-share Request for {slug} doc with id {id} to other creators. Can only do this to created doc.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "share": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "unshare": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "share",
+                    "unshare"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/form/join": {
+      "post": {
+        "summary": "joinWithVerifiableCode",
+        "deprecated": false,
+        "description": "Join or by fullVerifiableCode",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fullVerifiableCode": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fullVerifiableCode"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/form/{slug}/{id}/verify": {
+      "post": {
+        "summary": "verifyDoc",
+        "deprecated": false,
+        "description": "Verify the doc",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "verdict": {
+                    "type": "boolean"
+                  },
+                  "message_subject": {
+                    "type": "string"
+                  },
+                  "message_body": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "verdict",
+                  "message_subject",
+                  "message_body"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/form/{slug}/{id}/message": {
+      "post": {
+        "summary": "sendMessageToVerifiable",
+        "deprecated": false,
+        "description": "Send message to verifiable",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message_subject": {
+                    "type": "string"
+                  },
+                  "message_body": {
+                    "type": "string"
+                  },
+                  "sendEmail": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "message_subject",
+                  "message_body",
+                  "sendEmail"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/form/{slug}/constraints": {
+      "get": {
+        "summary": "getConstraints",
+        "deprecated": false,
+        "description": "Get the the Verifiable object of the slug. Useful for getting the constraints!",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "constraints": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Verifiable%20Obj"
+                      }
+                    },
+                    "required_on_create": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Verifiable%20Obj"
+                      }
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "slug",
+                    "constraints",
+                    "required_on_create",
+                    "updatedAt",
+                    "createdAt"
+                  ]
+                },
+                "example": {
+                  "id": -62781803.04134526,
+                  "slug": "ex dolore in",
+                  "constraints": [
+                    {
+                      "name": "Marco Brown MD",
+                      "type": "email",
+                      "max_input_size_kb": -61910583.64859199,
+                      "unique": false,
+                      "id": "11"
+                    },
+                    {
+                      "name": "Winifred Kohler",
+                      "type": "email",
+                      "max_input_size_kb": 20698516.852187663,
+                      "unique": false,
+                      "id": "22"
+                    },
+                    {
+                      "name": "Danielle Hilpert",
+                      "type": "payment",
+                      "max_input_size_kb": 11153388.675392002,
+                      "unique": false,
+                      "id": "72"
+                    }
+                  ],
+                  "required_on_create": [
+                    {
+                      "name": "Tyrone Terry MD",
+                      "type": "payment",
+                      "max_input_size_kb": -83186746.06031403,
+                      "unique": true,
+                      "id": "3"
+                    },
+                    {
+                      "name": "Dr. Carol Ryan",
+                      "type": "payment",
+                      "max_input_size_kb": 41480672.111371875,
+                      "unique": true,
+                      "id": "98"
+                    }
+                  ],
+                  "updatedAt": "2025-01-19",
+                  "createdAt": "2026-01-15T13:47:58.945Z"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "",
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "name",
+                    "message",
+                    "statusCode"
+                  ]
+                },
+                "example": {
+                  "type": "ex do in",
+                  "name": "Florence Bashirian Jr.",
+                  "message": "Cumque adulatio summopere iste. Corrumpo subvenio articulus deprecator voro temporibus. Assumenda audentia corrigo asper apostolus caritas vitae animi apparatus.",
+                  "statusCode": 81
+                }
+              }
+            },
+            "headers": {}
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/form/{slug}/is_verified": {
+      "get": {
+        "summary": "isAccessorVerified",
+        "deprecated": false,
+        "description": "Check if all of the accessor's {slug} document all verified or not. Behind the scene this get the minimum verified value of all the docs.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accessor",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "nullable": true
+                }
+              }
+            },
+            "headers": {}
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/authentication/login_handler": {
+      "get": {
+        "summary": "loginHandler",
+        "deprecated": false,
+        "description": "This is the default login handler after login Auth0",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "redirect",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          },
+          "3XX": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/authentication/verify_email": {
+      "get": {
+        "summary": "verifyEmail",
+        "deprecated": false,
+        "description": "Resend email verification",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "captcha_token",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/submission/{verifiable_doc_id}/{submittable_slug}": {
+      "get": {
+        "summary": "getSubmission",
+        "deprecated": false,
+        "description": "Get the submission",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "admin_option",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Submission",
+                  "nullable": true
+                }
+              }
+            },
+            "headers": {}
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "updateSubmission",
+        "deprecated": false,
+        "description": "Update the submission",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "insert": {
+                    "type": "object",
+                    "properties": {
+                      "any": {
+                        "nullable": true,
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "array"
+                          },
+                          {
+                            "type": "object"
+                          },
+                          {
+                            "type": "number"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "any"
+                    ]
+                  }
+                },
+                "required": [
+                  "insert"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "lockSubmission",
+        "deprecated": false,
+        "description": "Lock the submission",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "deleteSubmission",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "admin_option",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/submission/{verifiable_doc_id}/{submittable_slug}/review": {
+      "post": {
+        "summary": "reviewSubmission",
+        "deprecated": false,
+        "description": "Review the submission",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "verdict": {
+                    "type": "boolean"
+                  },
+                  "message_subject": {
+                    "type": "string"
+                  },
+                  "message_body": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "verdict",
+                  "message_subject",
+                  "message_body"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/submission/{verifiable_doc_id}/{submittable_slug}/message": {
+      "post": {
+        "summary": "sendMessageToVerifiable Copy",
+        "deprecated": false,
+        "description": "Send message to submission",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message_subject": {
+                    "type": "string"
+                  },
+                  "message_body": {
+                    "type": "string"
+                  },
+                  "sendEmail": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "message_subject",
+                  "message_body",
+                  "sendEmail"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/submittable/{submittable_slug}": {
+      "get": {
+        "summary": "getSubmittable",
+        "deprecated": false,
+        "description": "Get submittable",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "submittable_slug",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Submittable"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/upload/verifiable": {
+      "post": {
+        "summary": "uploadFileToVerifiable",
+        "deprecated": false,
+        "description": "Upload to verifiable",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "constraint_name",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string",
+                    "example": ""
+                  }
+                }
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "get": {
+        "summary": "getVerifiableFileInfo",
+        "deprecated": false,
+        "description": "Upload to verifiable",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "constraint_name",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "admin_option",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfo"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/upload/submission": {
+      "post": {
+        "summary": "uploadFileToSubmission",
+        "deprecated": false,
+        "description": "Upload to submission",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "constraint_name",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string",
+                    "example": ""
+                  }
+                }
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "get": {
+        "summary": "getSubmissionFileInfo",
+        "deprecated": false,
+        "description": "Upload to submission",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "constraint_name",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "admin_option",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfo"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/payment/verifiable": {
+      "post": {
+        "summary": "payToVerifiable",
+        "deprecated": false,
+        "description": "Upload to verifiable",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "constraint_name",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "check_only",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    },
+    "/payment/submission": {
+      "post": {
+        "summary": "payToSubmission",
+        "deprecated": false,
+        "description": "Upload to submission",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "verifiable_doc_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "submittable_slug",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "constraint_name",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "check_only",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "$ref": "#/components/responses/Invalid Body",
+            "description": ""
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden",
+            "description": ""
+          },
+          "404": {
+            "$ref": "#/components/responses/Not Found",
+            "description": ""
+          },
+          "500": {
+            "$ref": "#/components/responses/Server Error",
+            "description": ""
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Verifiable": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "constraints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Verifiable%20Obj"
+            }
+          },
+          "required_on_create": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Verifiable%20Obj"
+            }
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "id",
+          "required_on_create",
+          "constraints",
+          "updatedAt",
+          "createdAt"
+        ]
+      },
+      "Verifiable Obj": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "email",
+              "image",
+              "file",
+              "payment",
+              "boolean",
+              "number"
+            ]
+          },
+          "max_input_size_kb": {
+            "type": "number"
+          },
+          "unique": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "max_input_size_kb",
+          "unique",
+          "id"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "type",
+          "name",
+          "message",
+          "statusCode"
+        ]
+      },
+      "SQLRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "integer"
+          },
+          "creator": {
+            "type": "string"
+          },
+          "": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "verified",
+          "creator"
+        ]
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "locked": {
+            "type": "boolean"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "verifiableId": {
+            "type": "integer"
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "constraints": {
+                  "type": "object",
+                  "properties": {
+                    "any": {
+                      "nullable": true,
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "array"
+                        },
+                        {
+                          "type": "object"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "any"
+                  ]
+                }
+              },
+              "required": [
+                "constraints"
+              ]
+            }
+          }
+        },
+        "required": [
+          "locked",
+          "level",
+          "verifiableId",
+          "levels"
+        ]
+      },
+      "FileInfo": {
+        "type": "object",
+        "properties": {
+          "signedUrl": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "MIMEType": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "any": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "array"
+                  },
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "any"
+            ]
+          }
+        },
+        "required": [
+          "signedUrl",
+          "name"
+        ]
+      },
+      "Submittable": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "verifiable": {
+            "type": "string"
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "constraints": {
+                  "type": "object",
+                  "properties": {
+                    "any": {
+                      "nullable": true,
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "array"
+                        },
+                        {
+                          "type": "object"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "any"
+                  ]
+                }
+              },
+              "required": [
+                "constraints"
+              ]
+            }
+          }
+        },
+        "required": [
+          "slug",
+          "verifiable",
+          "levels"
+        ]
+      }
+    },
+    "responses": {
+      "Server Error": {
+        "description": "",
+        "content": {
+          "application/json": {
+            "schema": {
+              "title": "",
+              "type": "object",
+              "properties": {},
+              "required": []
+            },
+            "examples": {
+              "Example 1": {
+                "summary": "Example 1",
+                "value": {
+                  "type": "HttpError",
+                  "name": "ServerError",
+                  "message": "Something went wrong",
+                  "statusCode": 500
+                }
+              }
+            }
+          }
+        }
+      },
+      "Invalid Body": {
+        "description": "",
+        "content": {
+          "application/json": {
+            "schema": {
+              "title": "",
+              "type": "object",
+              "properties": {},
+              "required": []
+            },
+            "examples": {
+              "Example 1": {
+                "summary": "Example 1",
+                "value": {
+                  "type": "HttpError",
+                  "name": "InvalidBody",
+                  "message": "Supplied request body is invalid",
+                  "statusCode": 400
+                }
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "",
+        "content": {
+          "application/json": {
+            "schema": {
+              "title": "",
+              "type": "object",
+              "properties": {},
+              "required": []
+            },
+            "examples": {
+              "Example 1": {
+                "summary": "Example 1",
+                "value": {
+                  "type": "AuthenticationError",
+                  "name": "Unauthenticated",
+                  "message": "You are unauthenticated, login first",
+                  "statusCode": 403
+                }
+              },
+              "Example 2": {
+                "summary": "Example 2",
+                "value": {
+                  "type": "AuthenticationError",
+                  "name": "ForbiddenAction",
+                  "message": "This user is forbidden to do the requested action",
+                  "statusCode": 403
+                }
+              }
+            }
+          }
+        }
+      },
+      "Not Found": {
+        "description": "",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "Example 1": {
+                "summary": "Example 1",
+                "value": {
+                  "type": "FormError",
+                  "name": "InvalidSlug",
+                  "message": "Requested slug not found",
+                  "statusCode": 404
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}
