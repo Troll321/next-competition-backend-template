@@ -16,6 +16,10 @@ npx @alolgamerzz/setup-competition-BE
 
 ---
 
+### Template REPO
+
+https://github.com/Troll321/next-competition-backend-template
+
 ### Feature
 
 - Verifying and reviewing
