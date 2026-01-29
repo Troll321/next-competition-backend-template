@@ -124,3 +124,87 @@ Attached to a constraint.
     - `ExpectedError`: User-friendly known errors.
     - `UnexpectedError`: System faults.
     - UI: Toast notifications for feedback.
+
+## 6. API Reference
+
+Functions that only has **[_S]** or **[_C]** should not be called on the frontend. Use the function with **[_S, _C]** or **[_SC]**. Exception for `useUser()` this is safe to call in client.
+
+### Authentication
+
+- `sendEmailVerif(captchaToken)` **[_S, _C]** Send verification email
+- `getLoginURL(redirect?)` **[_SC]** Generate login URL
+- `getLogoutURL(redirect?)` **[_SC]** Generate logout URL
+- `useUser()` **[_C]** Client hook for user auth
+- `getUser()` **[_S]** Get current user from server session
+- `getValidUser(_user?, _isFromServer?)` **[_S]** Validate and retrieve user
+- `isAdmin()` **[_S]** Check if current user is admin
+
+### Form
+
+- `getVerifiable(slug)` **[_S, _C]** Get verifiable config by slug
+- `readDoc(...)` **[_S, _C]** Read verifiable document logic
+- `createDoc(...)` **[_S, _C]** Create new verifiable document
+- `updateDoc(...)` **[_S, _C]** Update existing verifiable document
+- `deleteDoc(...)` **[_S, _C]** Delete verifiable document
+- `requestVerify(slug, id)` **[_S, _C]** Request verification for document
+- `shareDoc(...)` **[_S, _C]** Share document with users
+- `isAccessorVerified(slug, accessor)` **[_S, _C]** Check if accessor is verified
+- `joinWithVerifiableCode(fullVerifiableCode)` **[_S, _C]** Join verifiable via code
+- `verifyDoc(...)` **[_S, _C]** Admin verify document
+- `sendMessageToVerifiable(...)` **[_S, _C]** Send message to verifiable creator
+
+### Payment
+
+- `payToVerifiable(...)` **[_S, _C]** Process payment for verifiable
+- `payToSubmission(...)` **[_S, _C]** Process payment for submission
+- `requestPayment(...)` **[_S]** Request payment token
+
+### Submission
+
+- `getSubmittable(submittableSlug)` **[_S, _C]** Get submittable config
+- `getSubmission(...)` **[_S, _C]** Get submission data
+- `updateSubmission(...)` **[_S, _C]** Update submission data
+- `lockSubmission(verifiableDocId, submittableSlug)` **[_S, _C]** Lock submission (submit)
+- `reviewSubmission(...)` **[_S, _C]** Admin review submission
+- `deleteSubmission(...)` **[_S, _C]** Delete submission
+- `allowedToModify(submittable, submission)` **[_S]** Check modification rights
+- `sendMessageToSubmission(...)` **[_S]** Send message to submission owner
+
+### Upload
+
+- `uploadFileToVerifiable(...)` **[_S, _C]** Upload file linked to verifiable
+- `uploadFileToSubmission(...)` **[_S, _C]** Upload file linked to submission
+- `getVerifiableFileInfo(...)` **[_S, _C]** Get info for verifiable file
+- `getSubmissionFileInfo(...)` **[_S, _C]** Get info for submission file
+- `deleteFile(sqlUrl, _isFromServer)` **[_S]** Delete file from storage
+
+### Utils
+
+- `isArrayOfString(arr)` **[_SC]** Validate array of strings
+- `base64UrlEncode(str)` **[_SC]** Base64 URL encode
+- `base64UrlDecode(str)` **[_SC]** Base64 URL decode
+- `decodeSQLURL(sqlUrl)` **[_SC]** Parse SQL URL format
+- `encodeSQLURL(adapter, path)` **[_SC]** Create SQL URL
+- `encodeFilePath(userId, file)` **[_SC]** Encode file path for storage
+- `decodeFilePath(filePath)` **[_SC]** Decode file path from storage
+- `permuteNumber(x)` **[_SC]** Obfuscate ID (permute)
+- `unpermuteNumber(x)` **[_SC]** De-obfuscate ID (unpermute)
+- `toBase36(x)` **[_SC]** Convert to Base36 string
+- `fromBase36(x)` **[_SC]** Convert from Base36 string
+- `encodePaymentInfo(paymentInfo)` **[_SC]** Encode payment payload
+- `decodePaymentInfo(encodedPaymentInfo)` **[_SC]** Decode payment payload
+- `APIFetch<T>(...)` **[_C]** Wrapper for client fetch
+- `getDrizzle()` **[_S]** Get Drizzle ORM instance
+- `getPayloadClient()` **[_S]** Get PayloadCMS client
+- `getMongoDB()` **[_S]** Get MongoDB connection
+- `getCollection(submittableSlug, myDb)` **[_S]** Get MongoDB collection
+- `sendEmail(dest, subject, message)` **[_S]** Send email via transport
+- `r(val)` **[_S]** Raw SQL value wrapper
+- `genAccesor(accessor)` **[_S]** Generate accessor SQL
+- `genUW(obj, sep)` **[_S]** Generate update/where SQL
+- `genSql(str, ...params)` **[_S]** Generate safe SQL
+
+### ErrorHandler
+
+- `errorHandler(err)` **[_S, _C]** This is only placeholder. \*\_S is for server components error
+- `httpErrorHandler(_err)` **[_S]** Handle HTTP errors

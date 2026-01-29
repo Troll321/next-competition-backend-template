@@ -49,6 +49,7 @@ https://github.com/Troll321/next-competition-backend-template
 - `profile` verifiable is created on login (see `src/api/authentication/loginHandler.ts`). \
   This could be disabled or changed
 - Implement custom `StorageAdapter` or `PaymentAdapter` class and add to adapters array `src/api/payment/server.ts` or `src/api/upload/server.ts`
+- Check Next config for experimental config (this is done to prevent pooling exhaustion)
 - See `/agents` for further inquiry
 
 ---
