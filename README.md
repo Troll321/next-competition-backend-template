@@ -3,7 +3,7 @@
 ## Installation
 
 ```
-npx @troll321/next-competition-backend
+npx next-competition-backend
 ```
 
 ## Guide on Integrating
