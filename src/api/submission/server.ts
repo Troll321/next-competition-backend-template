@@ -18,7 +18,7 @@ import { SQLRow } from "../utils/sql";
 import { deleteFile_S } from "../upload/server";
 
 const payload: Awaited<ReturnType<typeof getPayloadClient_S>> = await getPayloadClient_S();
-const db: Db = (await getMongoDB_S()).db("nesco_web");
+const db: Db = (await getMongoDB_S()).db(process.env.MONGODB_DB_NAME!);
 
 export interface Submission {
     locked: number;

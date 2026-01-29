@@ -39,7 +39,7 @@ export class IdrxAdapter implements PaymentAdapter {
             networkChainId: process.env.IDRX_BASE_CHAIN_ID!,
             expiryPeriod: paymentExpireM,
             requestType: "idrx",
-            productDetails: `Nesco | ${paymentParam.slug}`,
+            productDetails: `${process.env.IDRX_PRODUCT_DETAIL_DISPLAY_ORGANIZATION!} | ${paymentParam.slug}`,
         };
         const stringifiedBody = JSON.stringify(body);
 

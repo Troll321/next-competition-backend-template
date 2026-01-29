@@ -32,6 +32,6 @@ export async function sendEmail_S(dest: string[], subject: string, message: stri
         from: process.env.SMTP_FROM,
         to: dest.join(", "),
         subject,
-        html: `<h1>Message from Nesco UGM2026: ${message}</h1>`,
+        html: `<h1>Message from me: ${message}</h1>`,
     });
 }

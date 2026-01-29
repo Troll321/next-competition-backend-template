@@ -39,7 +39,7 @@ export interface AdminFileInfoOption {
     allowRead: boolean;
 }
 
-const db: Db = (await getMongoDB_S()).db("nesco_web");
+const db: Db = (await getMongoDB_S()).db(process.env.MONGODB_DB_NAME!);
 
 /**
  * The object key can be different from supplied bucketId but all should be unique

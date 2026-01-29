@@ -60,7 +60,7 @@ Implement the `SubmissionForm` component to handle multi-stage data submissions.
 
 ### Components
 
-#### [MODIFY] [SubmissionForm.tsx](file:///e:/OTHER/Code/nescougm2026/src/components/functional/SubmissionForm.tsx)
+#### [MODIFY] [SubmissionForm.tsx]
 
 - **Imports**: Import necessary API clients (`getSubmission_C`, `updateSubmission_C`, `lockSubmission_C`, `uploadFileToSubmission_C`, `readDoc_C`, etc.) and types.
 - **Helper Components**: Implement `NumberField`, `TextField`, `BooleanField`, `FileField` (with preview and download logic), `PaymentField` (as number input).
