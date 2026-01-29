@@ -41,12 +41,16 @@ export interface AdminFileInfoOption {
 
 const db: Db = (await getMongoDB_S()).db("nesco_web");
 
+/**
+ * The object key can be different from supplied bucketId but all should be unique
+ * Please use safe name (alphanumeric lowercase underscore)
+ */
 const adapters: Record<string, StorageAdapter> = {
     supabase: new SupabaseAdapter("mystorage"),
 };
 
 async function uploadFile_S(uId: string, file: File): Promise<string> {
-    const adapter = "supabase";
+    const adapter = "supabase"; // Choose the adapter to use
     return encodeSQLURL_SC(adapter, await adapters[adapter].uploadFile_S(uId, file));
 }
 

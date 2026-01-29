@@ -510,7 +510,7 @@ const FieldValueRenderer = ({
                     <div className="payment-details">
                         <div className="detail-row">
                             <strong>Merchant Order ID:</strong>
-                            <span>{paymentInfo.merchantOrderId}</span>
+                            <span>{paymentInfo.reference}</span>
                         </div>
                         <div className="detail-row">
                             <strong>

@@ -240,9 +240,7 @@ function PaymentField({
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="font-medium text-gray-500">Order ID:</span>
-                                    <span className="font-mono text-xs">
-                                        {decoded.merchantOrderId}
-                                    </span>
+                                    <span className="font-mono text-xs">{decoded.reference}</span>
                                 </div>
                             </>
                         )}

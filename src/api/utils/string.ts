@@ -186,15 +186,17 @@ export function encodePaymentInfo_SC(paymentInfo: PaymentInfo) {
     if (paymentInfo.status === "pending") {
         return [
             paymentInfo.status,
+            paymentInfo.adapter,
             paymentInfo.expiredDate.toString(),
-            paymentInfo.merchantOrderId,
+            paymentInfo.reference,
             paymentInfo.paymentUrl,
         ].join(paymentInfoLimiter);
     }
     return [
         paymentInfo.status,
+        paymentInfo.adapter,
         paymentInfo.paidDate.toString(),
-        paymentInfo.merchantOrderId,
+        paymentInfo.reference,
         paymentInfo.paymentUrl,
     ].join(paymentInfoLimiter);
 }
@@ -206,7 +208,7 @@ export function encodePaymentInfo_SC(paymentInfo: PaymentInfo) {
  */
 export function decodePaymentInfo_SC(encodedPaymentInfo: string): PaymentInfo {
     const pInfoArr = encodedPaymentInfo.split(paymentInfoLimiter);
-    if (pInfoArr.length < 4 || (pInfoArr[0] !== "pending" && pInfoArr[0] !== "paid")) {
+    if (pInfoArr.length < 5 || (pInfoArr[0] !== "pending" && pInfoArr[0] !== "paid")) {
         throw new PaymentError(PaymentErrorEnum.InvalidEncodedPaymentInfo);
     }
 
@@ -214,9 +216,10 @@ export function decodePaymentInfo_SC(encodedPaymentInfo: string): PaymentInfo {
     if (pInfoArr[0] === "paid") {
         paymentInfo = {
             status: "paid",
-            paidDate: parseInt(pInfoArr[1]),
-            merchantOrderId: pInfoArr[2],
-            paymentUrl: pInfoArr.slice(3).join(paymentInfoLimiter),
+            adapter: pInfoArr[1],
+            paidDate: parseInt(pInfoArr[2]),
+            reference: pInfoArr[3],
+            paymentUrl: pInfoArr.slice(4).join(paymentInfoLimiter),
         };
         if (isNaN(paymentInfo.paidDate)) {
             throw new PaymentError(PaymentErrorEnum.InvalidEncodedPaymentInfo);
@@ -224,9 +227,10 @@ export function decodePaymentInfo_SC(encodedPaymentInfo: string): PaymentInfo {
     } else {
         paymentInfo = {
             status: "pending",
-            expiredDate: parseInt(pInfoArr[1]),
-            merchantOrderId: pInfoArr[2],
-            paymentUrl: pInfoArr.slice(3).join(paymentInfoLimiter),
+            adapter: pInfoArr[1],
+            expiredDate: parseInt(pInfoArr[2]),
+            reference: pInfoArr[3],
+            paymentUrl: pInfoArr.slice(4).join(paymentInfoLimiter),
         };
         if (isNaN(paymentInfo.expiredDate)) {
             throw new PaymentError(PaymentErrorEnum.InvalidEncodedPaymentInfo);

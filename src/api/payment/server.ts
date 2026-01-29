@@ -17,6 +17,7 @@ import {
     updateSubmission_S,
 } from "../submission/server";
 import { base64UrlEncode_SC, decodePaymentInfo_SC, encodePaymentInfo_SC } from "../utils/string";
+import { IdrxAdapter } from "./idrxAdapter";
 
 export type PaymentParam =
     | {
@@ -38,151 +39,40 @@ export type PaymentParam =
 export type PaymentInfo =
     | {
           status: "pending";
+          adapter: string;
           expiredDate: number;
-          merchantOrderId: string;
+          reference: string;
           paymentUrl: string;
       }
     | {
           status: "paid";
+          adapter: string;
           paidDate: number;
-          merchantOrderId: string;
+          reference: string;
           paymentUrl: string;
       };
 
-async function generateIdrxSignature(text: string) {
-    const encoder = new TextEncoder();
-
-    const key = await crypto.subtle.importKey(
-        "raw",
-        encoder.encode(process.env.IDRX_SECRET_KEY!),
-        {
-            name: "HMAC",
-            hash: "SHA-256",
-        },
-        false,
-        ["sign"]
-    );
-
-    const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(text));
-    const bytes = new Uint8Array(signature);
-    return base64UrlEncode_SC(String.fromCharCode(...bytes));
+export interface PaymentAdapter {
+    getPaymentInfo_S(paymentParam: PaymentParam): Promise<PaymentInfo>;
+    checkAlreadyPaid_S(paymentInfo: PaymentInfo): Promise<PaymentInfo | false>;
 }
 
-async function checkAlreadyPaid(merchantOrderId: string): Promise<PaymentInfo | false> {
-    const now = Date.now();
-    const url = `${process.env.IDRX_BASE_URL!}/api/transaction/user-transaction-history`;
-    const method = "GET";
-    const body = {
-        transactionType: "MINT",
-        paymentStatus: "PAID",
-        merchantOrderId: merchantOrderId,
-        page: "1",
-        take: "1",
-    };
-    const stringifiedBody = JSON.stringify(body);
+/**
+ * The object key === supplied adapterKey and should be unique
+ * Please use safe name (alphanumeric lowercase underscore)
+ */
+const adapters: Record<string, PaymentAdapter> = {
+    idrx: new IdrxAdapter("idrx"),
+};
 
-    const signature = await generateIdrxSignature(
-        [method, url, now.toString(), stringifiedBody].join("")
-    );
-
-    const res = await fetch(url + "?" + new URLSearchParams(body), {
-        method: method,
-        headers: {
-            "Content-Type": "application/json",
-            "idrx-api-key": process.env.IDRX_API_KEY!,
-            "idrx-api-sig": signature,
-            "idrx-api-ts": now.toString(),
-        },
-    });
-
-    try {
-        const json = await res.json();
-
-        if (process.env.NODE_ENV !== "production") {
-            console.log("CHECK ALREADY MINTED:\n", json);
-        }
-
-        if (!res.ok || json.statusCode !== 200 || json.records?.constructor !== Array) {
-            throw new PaymentError(PaymentErrorEnum.ThirdPartyError);
-        }
-
-        if (json.records.length === 0) {
-            return false;
-        }
-
-        return {
-            status: "paid",
-            paidDate: new Date(json.records[0].updatedAt).getTime(),
-            merchantOrderId: merchantOrderId,
-            paymentUrl: `${process.env.IDRX_PAYMENT_BASE_URL!}${json.records[0].reference}`,
-        };
-    } catch (err) {
-        if (err instanceof ExpectedError) {
-            throw err;
-        }
-        throw new PaymentError(PaymentErrorEnum.ThirdPartyError);
-    }
+async function getPaymentInfo_S(paymentParam: PaymentParam) {
+    const adapter = "idrx"; // Choose the adapter to use
+    return await adapters[adapter].getPaymentInfo_S(paymentParam);
 }
 
-async function mintToIdrx(paymentParam: PaymentParam): Promise<PaymentInfo> {
-    const paymentExpireM = parseInt(process.env.IDRX_PAYMENT_EXPIRE_PERIOD_M!);
-    const now = Date.now();
-    const url = `${process.env.IDRX_BASE_URL!}/api/transaction/mint-request`;
-    const method = "POST";
-    const body = {
-        toBeMinted: paymentParam.amount.toString(),
-        destinationWalletAddress: process.env.IDRX_WALLET_ADDRESS!,
-        networkChainId: process.env.IDRX_BASE_CHAIN_ID!,
-        expiryPeriod: paymentExpireM,
-        requestType: "idrx",
-        productDetails: `Nesco | ${paymentParam.slug}`,
-    };
-    const stringifiedBody = JSON.stringify(body);
-
-    // Generate signature
-    const signature = await generateIdrxSignature(
-        [method, url, now.toString(), stringifiedBody].join("")
-    );
-
-    const res = await fetch(url, {
-        method: method,
-        headers: {
-            "Content-Type": "application/json",
-            "idrx-api-key": process.env.IDRX_API_KEY!,
-            "idrx-api-sig": signature,
-            "idrx-api-ts": now.toString(),
-        },
-        body: stringifiedBody,
-    });
-
-    try {
-        const json = await res.json();
-
-        if (process.env.NODE_ENV !== "production") {
-            console.log("MINT TO IDRX:\n", json);
-        }
-
-        if (!res.ok || json.statusCode !== 200) {
-            throw new PaymentError(PaymentErrorEnum.ThirdPartyError);
-        }
-
-        const { merchantOrderId, paymentUrl } = json.data;
-        if (typeof merchantOrderId !== "string" || typeof paymentUrl !== "string") {
-            throw new PaymentError(PaymentErrorEnum.ThirdPartyError);
-        }
-
-        return {
-            status: "pending",
-            expiredDate: now + paymentExpireM * 60 * 1000,
-            merchantOrderId: merchantOrderId,
-            paymentUrl: paymentUrl,
-        };
-    } catch (err) {
-        if (err instanceof ExpectedError) {
-            throw err;
-        }
-        throw new PaymentError(PaymentErrorEnum.ThirdPartyError);
-    }
+async function checkAlreadyPaid_S(paymentInfo: PaymentInfo) {
+    const adapter = paymentInfo.adapter;
+    return await adapters[adapter].checkAlreadyPaid_S(paymentInfo);
 }
 
 /**
@@ -204,7 +94,7 @@ export async function requestPayment_S(
             return oldEncodedPaymentInfo;
         }
 
-        const newPaymentInfo = await checkAlreadyPaid(paymentInfo.merchantOrderId);
+        const newPaymentInfo = await checkAlreadyPaid_S(paymentInfo);
         if (newPaymentInfo) {
             return encodePaymentInfo_SC(newPaymentInfo);
         }
@@ -220,7 +110,7 @@ export async function requestPayment_S(
     if (!canMakeNew) {
         throw new PaymentError(PaymentErrorEnum.NotAllowed);
     }
-    return encodePaymentInfo_SC(await mintToIdrx(paymentParam));
+    return encodePaymentInfo_SC(await getPaymentInfo_S(paymentParam));
 }
 
 /**
