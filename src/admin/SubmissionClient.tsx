@@ -219,7 +219,7 @@ export const SubmissionClient = () => {
     };
 
     const handleBulkSendMessage = async (sendEmail: boolean) => {
-        const action = sendEmail ? "Send Message" : "Send Message (No Email)";
+        const action = sendEmail ? "Send Message (Email)" : "Send Message (No Email)";
         if (
             !confirm(
                 `You are about to ${action} to ${selectedSubmissions.size} submissions. Continue?`
@@ -463,7 +463,7 @@ export const SubmissionClient = () => {
                             buttonStyle="secondary"
                             onClick={() => handleBulkSendMessage(true)}
                             disabled={isBulkVerifying || selectedSubmissions.size === 0}>
-                            Send Message
+                            Send Message (Email)
                         </Button>
                         <Button
                             buttonStyle="secondary"

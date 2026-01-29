@@ -151,7 +151,7 @@ export const VerifiableClient = () => {
     };
 
     const handleBulkSendMessage = async (sendEmail: boolean) => {
-        const action = sendEmail ? "Send Message" : "Send Message (No Email)";
+        const action = sendEmail ? "Send Message (Email)" : "Send Message (No Email)";
         if (
             !confirm(`You are about to ${action} to ${selectedDocs.size} documents. Continue?`) ||
             !confirm(`Confirm ${action}?`)
@@ -576,7 +576,7 @@ export const VerifiableClient = () => {
                             buttonStyle="secondary"
                             onClick={() => handleBulkSendMessage(true)}
                             disabled={isBulkVerifying || selectedDocs.size === 0}>
-                            Send Message
+                            Send Message (Email)
                         </Button>
                         <Button
                             buttonStyle="secondary"

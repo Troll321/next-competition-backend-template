@@ -188,7 +188,7 @@ export const DocReview: React.FC<DocReviewProps> = ({
     };
 
     const handleSendMessage = async (sendEmail: boolean) => {
-        const action = sendEmail ? "Send Message" : "Send Message (No Email)";
+        const action = sendEmail ? "Send Message (Email)" : "Send Message (No Email)";
         if (
             !confirm(`Are you sure you want to ${action} to this document?`) ||
             !confirm(`Confirm ${action}?`)
@@ -498,7 +498,7 @@ export const DocReview: React.FC<DocReviewProps> = ({
                         buttonStyle="secondary"
                         onClick={() => handleSendMessage(true)}
                         disabled={isVerifying}>
-                        Send Message
+                        Send Message (Email)
                     </Button>
                     <Button
                         buttonStyle="secondary"
