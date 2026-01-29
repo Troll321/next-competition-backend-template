@@ -476,13 +476,27 @@ export const SubmissionClient = () => {
                 <div className="buttons-row">
                     <Button
                         onClick={() => handleBulkVerify(true)}
-                        disabled={isBulkVerifying || selectedSubmissions.size === 0}>
+                        disabled={
+                            isBulkVerifying ||
+                            selectedSubmissions.size === 0 ||
+                            Array.from(selectedSubmissions.values()).some((s) => {
+                                const levelsLength = submittable?.levels?.length || 0;
+                                return s.level > levelsLength;
+                            })
+                        }>
                         {isBulkVerifying ? "Processing..." : "Bulk Accept"}
                     </Button>
                     <Button
                         buttonStyle="primary"
                         onClick={() => handleBulkVerify(false)}
-                        disabled={isBulkVerifying || selectedSubmissions.size === 0}>
+                        disabled={
+                            isBulkVerifying ||
+                            selectedSubmissions.size === 0 ||
+                            Array.from(selectedSubmissions.values()).some((s) => {
+                                const levelsLength = submittable?.levels?.length || 0;
+                                return s.level > levelsLength || s.locked === 2;
+                            })
+                        }>
                         {isBulkVerifying ? "Processing..." : "Bulk Reject"}
                     </Button>
                     <Button

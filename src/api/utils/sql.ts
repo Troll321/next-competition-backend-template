@@ -86,7 +86,7 @@ export function genAccesor_S(accessor: string[]): iCustomGenSQL {
         if (i === accessor.length - 1) {
             out.custom.str.push("])");
         } else {
-            out.custom.str.push("] OR ");
+            out.custom.str.push("] OR creator = ");
         }
 
         out.custom.params.push(now, now);

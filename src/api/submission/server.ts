@@ -547,7 +547,7 @@ export async function deleteSubmission_S(
         const { constraints } = submittable.levels[i];
         for (let j = 0; j < constraints.length; j++) {
             const { name, type } = constraints[j];
-            const now = submission.levels[i].constraints[name];
+            const now = submission.levels[i]?.constraints[name];
             if (type === "file" && typeof now === "string") {
                 deleteFile_S(now, true);
             }
