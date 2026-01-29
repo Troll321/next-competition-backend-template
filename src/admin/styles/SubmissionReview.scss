@@ -1,0 +1,68 @@
+.levels-section {
+    .level-header {
+        margin-bottom: 1em;
+    }
+}
+
+.level-block {
+    & > div:nth-child(1) {
+        margin-bottom: 1em;
+    }
+
+    .constraints-super-container {
+        padding-left: 1em;
+        margin-top: 0.5em;
+    }
+}
+
+.none-text {
+    color: #464646;
+}
+
+.level-constraints-grid {
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+}
+
+.buttons-row {
+    height: max-content;
+
+    button {
+        margin-top: 0rem;
+    }
+}
+
+.file-info-box {
+    max-width: 25em;
+    margin: 0.5em 0 0.5em;
+}
+
+.locked-0,
+.locked-1,
+.locked-2 {
+    span {
+        display: block;
+        font-weight: bold;
+        padding: 0 0.3em;
+        border-radius: 4px;
+    }
+}
+
+.locked-0 {
+    span {
+        background-color: rgb(233, 227, 191);
+    }
+}
+
+.locked-1 {
+    span {
+        background-color: rgb(169, 202, 159);
+    }
+}
+
+.locked-2 {
+    span {
+        background-color: rgb(194, 194, 194);
+    }
+}
