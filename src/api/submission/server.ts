@@ -18,7 +18,7 @@ import { SQLRow } from "../utils/sql";
 import { deleteFile_S } from "../upload/server";
 
 const payload: Awaited<ReturnType<typeof getPayloadClient_S>> = await getPayloadClient_S();
-const db: Db = (await getMongoDB_S()).db(process.env.MONGODB_DB_NAME!);
+const db: Db = (await getMongoDB_S()).db("nesco_web");
 
 export interface Submission {
     locked: number;
@@ -76,34 +76,47 @@ export async function getSubmittable_S(submittableSlug: string) {
 async function validateParams(
     verifiableDocId: number,
     submittableSlug: string,
-    _isFromServer: true
+    _isFromServer: true,
+    _isAdmin?: false
 ): Promise<null>;
 
 async function validateParams(
     verifiableDocId: number,
     submittableSlug: string,
-    _isFromServer?: false | undefined
+    _isFromServer?: false | undefined,
+    _isAdmin?: boolean
 ): Promise<{ submittable: Submittable; doc: SQLRow }>;
 
 async function validateParams(
     verifiableDocId: number,
     submittableSlug: string,
-    _isFromServer: any
+    _isFromServer?: true,
+    _isAdmin?: true
+): Promise<{ submittable: Submittable; doc: SQLRow }>;
+
+async function validateParams(
+    verifiableDocId: number,
+    submittableSlug: string,
+    _isFromServer: any,
+    _isAdmin?: boolean
 ): Promise<{ submittable: Submittable; doc: SQLRow } | null>;
 
 async function validateParams(
     verifiableDocId: number,
     submittableSlug: string,
-    _isFromServer: boolean = false
+    _isFromServer: boolean = false,
+    _isAdmin: boolean = false
 ) {
-    if (_isFromServer) {
+    if (_isFromServer && !_isAdmin) {
         return null;
     }
 
     const submittable = await getSubmittable_S(submittableSlug);
     const verifiableSlug = submittable.verifiable;
 
-    const doc = (await readDoc_S(verifiableSlug, { id: verifiableDocId }))[0];
+    const doc = (
+        await readDoc_S(verifiableSlug, { id: verifiableDocId }, undefined, undefined, _isAdmin)
+    )[0];
     if (!doc) {
         throw new FormError(FormErrorEnum.DocumentNotFound);
     }
@@ -450,7 +463,12 @@ export async function reviewSubmission_S(
         throw new ExpectedAuthError(ExpectedAuthErrorEnum.NotAdmin);
     }
 
-    const { submittable, doc } = (await validateParams(verifiableDocId, submittableSlug, false))!;
+    const { submittable, doc } = (await validateParams(
+        verifiableDocId,
+        submittableSlug,
+        true,
+        true
+    ))!;
     const collection = await getCollection_S(submittableSlug, db);
     const submission = await getSubmission_S(
         verifiableDocId,
@@ -507,7 +525,7 @@ export async function deleteSubmission_S(
         return;
     }
 
-    const { submittable } = await validateParams(verifiableDocId, submittableSlug);
+    const { submittable } = await validateParams(verifiableDocId, submittableSlug, true, true);
     const collection = await getCollection_S(submittableSlug, db);
 
     const submission = await getSubmission_S(
@@ -557,7 +575,7 @@ export async function sendMessageToSubmission_S(
         throw new ExpectedAuthError(ExpectedAuthErrorEnum.NotAdmin);
     }
 
-    const { doc } = (await validateParams(verifiableDocId, submittableSlug, false))!;
+    const { doc } = (await validateParams(verifiableDocId, submittableSlug, true, true))!;
     const collection = await getCollection_S(submittableSlug, db);
     const submission = await getSubmission_S(
         verifiableDocId,

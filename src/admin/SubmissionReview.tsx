@@ -69,7 +69,12 @@ export const SubmissionReview: React.FC<SubmissionReviewProps> = ({
     const refreshSubmission = async () => {
         try {
             // Fetch updated submission data
-            const res = await getSubmission_C(submission.verifiableId, submittableSlug);
+            const res = (
+                await getSubmission_C(submission.verifiableId, submittableSlug, {
+                    page: 1,
+                    where: {},
+                })
+            ).data[0];
             let updated: Submission | null = null;
 
             if (Array.isArray(res)) {

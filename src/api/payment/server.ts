@@ -1,7 +1,6 @@
 import "server-only";
 import { getValidUser_S } from "../authentication/server";
 import {
-    ExpectedError,
     FormError,
     FormErrorEnum,
     PaymentError,
@@ -16,7 +15,7 @@ import {
     getSubmittable_S,
     updateSubmission_S,
 } from "../submission/server";
-import { base64UrlEncode_SC, decodePaymentInfo_SC, encodePaymentInfo_SC } from "../utils/string";
+import { decodePaymentInfo_SC, encodePaymentInfo_SC } from "../utils/string";
 import { IdrxAdapter } from "./idrxAdapter";
 
 export type PaymentParam =

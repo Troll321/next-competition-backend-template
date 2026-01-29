@@ -579,9 +579,9 @@ export function SubmissionForm({
     const hasChanges = () => {
         // Check for changes (excluding payment inputs if they are handled separately, but usually they are just strings)
         // User spec: "this includes file input, text input but not payment input. Payment input is handled separately"
-        if (!submittable || !submission) return false;
+        if (!submittable) return false;
 
-        const currentLevelIdx = submission.level - 1;
+        const currentLevelIdx = submission ? submission.level - 1 : 0;
         if (!submittable.levels[currentLevelIdx]) return false;
         const levelConstraints = submittable.levels[currentLevelIdx].constraints;
 

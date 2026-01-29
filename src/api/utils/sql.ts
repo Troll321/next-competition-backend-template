@@ -78,11 +78,17 @@ export function genAccesor_S(accessor: string[]): iCustomGenSQL {
 
     for (let i = 0; i < accessor.length; i++) {
         const now = accessor[i];
-        out.custom.str.push(
-            i === 0 ? "(creator = " : "creator = ",
-            " OR shared @> ARRAY[",
-            i === accessor.length - 1 ? "])" : "] OR "
-        );
+
+        if (i === 0) {
+            out.custom.str.push("(creator = ");
+        }
+        out.custom.str.push(" OR shared @> ARRAY[");
+        if (i === accessor.length - 1) {
+            out.custom.str.push("])");
+        } else {
+            out.custom.str.push("] OR ");
+        }
+
         out.custom.params.push(now, now);
     }
     return out;
