@@ -36,7 +36,7 @@ A **Submittable** defines a multi-stage submission process linked to a Verifiabl
     - `ui_title`, `ui_description`: UI Text for levels.
     - `start_date`, `end_date`: Validity period for levels.
 
-A **Submission** is the instance of a user filling out a Submittable.
+A **Submission** is the instance of a user filling out a Submittable (can't be deleted by user).
 
 - **Locked Status (`locked`)**:
     - `0`: **Unlocked** (Editable).
@@ -134,7 +134,7 @@ Functions that only has **[_S]** or **[_C]** should not be called on the fronten
 - `sendEmailVerif(captchaToken)` **[_S, _C]** Send verification email
 - `getLoginURL(redirect?)` **[_SC]** Generate login URL
 - `getLogoutURL(redirect?)` **[_SC]** Generate logout URL
-- `useUser()` **[_C]** Client hook for user auth
+- `useUser()` **[_C]** Client hook for user auth (safe to use)
 - `getUser()` **[_S]** Get current user from server session
 - `getValidUser(_user?, _isFromServer?)` **[_S]** Validate and retrieve user
 - `isAdmin()` **[_S]** Check if current user is admin
@@ -151,7 +151,7 @@ Functions that only has **[_S]** or **[_C]** should not be called on the fronten
 - `isAccessorVerified(slug, accessor)` **[_S, _C]** Check if accessor is verified
 - `joinWithVerifiableCode(fullVerifiableCode)` **[_S, _C]** Join verifiable via code
 - `verifyDoc(...)` **[_S, _C]** Admin verify document
-- `sendMessageToVerifiable(...)` **[_S, _C]** Send message to verifiable creator
+- `sendMessageToVerifiable(...)` **[_S, _C]** Send message to verifiable creator (admin only)
 
 ### Payment
 
@@ -166,9 +166,9 @@ Functions that only has **[_S]** or **[_C]** should not be called on the fronten
 - `updateSubmission(...)` **[_S, _C]** Update submission data
 - `lockSubmission(verifiableDocId, submittableSlug)` **[_S, _C]** Lock submission (submit)
 - `reviewSubmission(...)` **[_S, _C]** Admin review submission
-- `deleteSubmission(...)` **[_S, _C]** Delete submission
+- `deleteSubmission(...)` **[_S, _C]** Delete submission (don't call this, only admin)
+- `sendMessageToSubmission(...)` **[_S, _C]** Send message to submission owner (admin only)
 - `allowedToModify(submittable, submission)` **[_S]** Check modification rights
-- `sendMessageToSubmission(...)` **[_S]** Send message to submission owner
 
 ### Upload
 
