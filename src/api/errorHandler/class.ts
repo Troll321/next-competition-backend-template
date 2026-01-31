@@ -84,6 +84,7 @@ export enum FormErrorEnum {
     DuplicateDocuments,
     VerificationFail,
     InvalidCode,
+    SharedExceedLimit,
 }
 
 export class FormError extends ExpectedError {
@@ -136,6 +137,11 @@ export class FormError extends ExpectedError {
                 message = "Supplied code is not valid";
                 name = "InvalidCode";
                 code = 404;
+                break;
+            case FormErrorEnum.SharedExceedLimit:
+                message = "Document has reach is shared limit";
+                name = "SharedExceedLimit";
+                code = 403;
                 break;
         }
         super(message, "FormError", name, code);

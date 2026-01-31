@@ -889,7 +889,7 @@ export async function shareDoc_S(
     }
 
     if (out.length > max_shared) {
-        throw new FormError(FormErrorEnum.InvalidInput, "shared");
+        throw new FormError(FormErrorEnum.SharedExceedLimit);
     }
 
     await updateDoc_S(slug, { shared: out }, { id: id }, user ?? undefined, true, true);
