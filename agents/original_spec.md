@@ -69,21 +69,21 @@ Rule for Verify Authorization:
 - Each Verifiable has a **depended_by** property which is an **array of slug** of another Verifiable (this is automatically updated by the system when depends_on is set) ✅
 - Document can only be requested for verification IFF: ✅
     - 1\. All constraints is not null ✅
-    - 2\. All of the depends_on docs (plural) of all the _accessor_ is has verified level minimal of 1 (i.e. \[table depends_on\] → \[creator/shared _accessor_\] → All Docs Verified) ✅
+    - 2\. All of the depends*on docs (plural) of all the \_accessor* is has verified level minimal of 1 (i.e. \[table depends*on\] → \[creator/shared \_accessor*\] → All Docs Verified) ✅
     - 3\. Not already verified ✅
 
 - If a document is rejected then all of its depended_by are also rejected. (Message comments may differ)
-- If a document is approved then all of its depends_on of all the _accessor_ that has a verified level of 1 is also accepted. (Message comments may differ)
+- If a document is approved then all of its depends*on of all the \_accessor* that has a verified level of 1 is also accepted. (Message comments may differ)
 - A document that has verified level of minimal 1 CAN'T BE CHANGED (change is update and delete operations) ✅
 - Deletion of a document can only be done IFF:
     - 1\. verified level < 1  ✅
-    - 2\. all of depended_by documents that have the _accessor_ as an _accessor_ is also deleted / empty ✅
+    - 2\. all of depended*by documents that have the \_accessor* as an _accessor_ is also deleted / empty ✅
     - 3\. Be done by the creator (not accessor)✅
 
 - Unshare can be done by the creator, but an _accessor_ can ONLY unshare itself ✅
 - Share can only be done if in the end the shared is <= max_shared AND a verifiable could add itself to the shared list by using the generated code from the server (other than this can't) ✅
 - Shared cannot include the creator of the docs✅
-- Shared verifiable can only be accepted if depends_on docs verified level >= to be shared Verifiable✅
+- Shared verifiable can only be accepted if depends_on docs verified level >= min(1, to be shared Verifiable) ✅
 - Share should always comply to the singleton check **✅**
 
 **—- UI COMPONENT SPEC —-**
