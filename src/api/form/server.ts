@@ -836,8 +836,6 @@ export async function shareDoc_S(
 
     for (let i = 0; i < unshare.length; i++) {
         newObj[unshare[i]] = false;
-
-        // @TODO: Buat ini biar ngecek kalo dia diunshare depended_by dia juga diunshare!
     }
 
     for (let i = 0; i < share.length; i++) {
@@ -870,7 +868,7 @@ export async function shareDoc_S(
                     if (doc.verified >= 1 && row.verified < 1) {
                         throw new FormError(
                             FormErrorEnum.VerificationFail,
-                            "dependencies unverified"
+                            "dependencies should be requested for verify"
                         );
                     }
                 });
