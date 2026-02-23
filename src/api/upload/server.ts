@@ -39,7 +39,7 @@ export interface AdminFileInfoOption {
     allowRead: boolean;
 }
 
-const db: Db = (await getMongoDB_S()).db(process.env.MONGODB_DB_NAME!);
+const db: Db = (await getMongoDB_S()).db("nesco_web");
 
 /**
  * The object key can be different from supplied bucketId but all should be unique
@@ -167,7 +167,12 @@ export async function uploadFileToVerifiable_S(
 
     const insertObj: Record<string, string> = {};
     insertObj[constraintName] = await uploadFile_S(user.email!, file);
-    await updateDoc_S(slug, insertObj, { id: docId }, undefined, true);
+    try {
+        await updateDoc_S(slug, insertObj, { id: docId }, undefined, true);
+    } catch (err) {
+        await deleteFile_S(insertObj[constraintName], true);
+        throw err;
+    }
     if (typeof doc[constraintName] === "string") {
         await deleteFile_S(doc[constraintName], true);
     }

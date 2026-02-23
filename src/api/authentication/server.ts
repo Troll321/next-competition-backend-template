@@ -53,6 +53,10 @@ async function getAccessToken_S() {
         },
         body: JSON.stringify(cred),
     });
+    if (!res.ok) {
+        throw new ExpectedAuthError(ExpectedAuthErrorEnum.ThirdPartyError);
+    }
+
     return (await res.json()).access_token;
 }
 
@@ -69,7 +73,7 @@ async function verifyCaptcha(token: string): Promise<boolean> {
         }
     );
     if (!res.ok) {
-        throw new HttpError(HttpErrorEnum.ServerError);
+        throw new ExpectedAuthError(ExpectedAuthErrorEnum.ThirdPartyError);
     }
 
     return (await res.json()).success as boolean;

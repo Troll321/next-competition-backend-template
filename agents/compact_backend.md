@@ -212,3 +212,4 @@ Functions that only has **[_S]** or **[_C]** should not be called on the fronten
 ## 7. Developer Notes
 
 - A document (say `B`) created by a shared accessor (say `U`) (accessor who is not the creator) that `depends_on` a shared document (say `A`) could have **NO `DEPENDS_ON`** though it is already verified. This could happen if the creator of document `A` unshare to user `U` after document `B` has been verified. (This does not disrupt user flow)
+- A user can't share its docs as it will persumabbly disrupt other unintended user dependency flow. Thus to join the to be shared party should also agree (this is achieved using team code)

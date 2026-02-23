@@ -89,7 +89,7 @@ export function decodeFilePath_SC(filePath: string) {
     arr = arr.join("").split("_");
     const unixTime = arr.shift()!;
     const fileName = arr
-        .join("")
+        .join("_")
         .split(".")
         .map((val, idx) => {
             if (idx === 0) {

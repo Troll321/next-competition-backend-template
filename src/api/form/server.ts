@@ -823,7 +823,7 @@ export async function shareDoc_S(
     const { singleton, depends_on, max_shared } = await getVerifiable_S(slug);
 
     if (!_isFromServer) {
-        share = share.filter((email) => email === user!.email);
+        share = [];
         if (user!.email !== doc.creator) {
             unshare = unshare.filter((email) => email === user!.email);
         }

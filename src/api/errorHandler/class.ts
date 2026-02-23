@@ -291,7 +291,7 @@ export class StringError extends ExpectedError {
             code = 0;
         switch (type) {
             case StringErrorEnum.InvalidBase36:
-                message = "Invalid input: ";
+                message = "Invalid user input for decoding from Base36";
                 name = "InvalidBase36";
                 code = 400;
                 break;
