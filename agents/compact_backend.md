@@ -208,3 +208,7 @@ Functions that only has **[_S]** or **[_C]** should not be called on the fronten
 
 - `errorHandler(err)` **[_S, _C]** This is only placeholder. \*\_S is for server components error
 - `httpErrorHandler(_err)` **[_S]** Handle HTTP errors
+
+## 7. Developer Notes
+
+- A document (say `B`) created by a shared accessor (say `U`) (accessor who is not the creator) that `depends_on` a shared document (say `A`) could have **NO `DEPENDS_ON`** though it is already verified. This could happen if the creator of document `A` unshare to user `U` after document `B` has been verified. (This does not disrupt user flow)
