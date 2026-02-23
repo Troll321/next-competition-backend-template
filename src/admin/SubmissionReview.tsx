@@ -58,7 +58,9 @@ export const SubmissionReview: React.FC<SubmissionReviewProps> = ({
     const [messageBody, setMessageBody] = useState("");
 
     const handleError = (e: any) => {
-        console.error(e);
+        if (process.env.NODE_ENV !== "production") {
+            console.error(e);
+        }
         if (e instanceof ExpectedError) {
             toast.error(`${e.name}: ${e.message}`);
         } else {
@@ -91,7 +93,9 @@ export const SubmissionReview: React.FC<SubmissionReviewProps> = ({
                 onUpdate(updated);
             }
         } catch (e) {
-            console.error("Failed to refresh submission", e);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Failed to refresh submission", e);
+            }
         }
     };
 

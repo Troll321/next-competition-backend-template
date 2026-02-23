@@ -85,7 +85,9 @@ export const VerifiableClient = () => {
 
     const handleError = (e: any) => {
         // Stop propagation is implied by not re-throwing
-        console.error(e);
+        if (process.env.NODE_ENV !== "production") {
+            console.error(e);
+        }
         if (e instanceof ExpectedError) {
             toast.error(`${e.name}: ${e.message}`);
         } else {
@@ -127,7 +129,9 @@ export const VerifiableClient = () => {
                 await verifyDoc_C(task.slug, task.id, verdict, bulkMessageSubject, bulkMessageBody);
                 successCount++;
             } catch (e: any) {
-                console.error(`Failed to verify ${task.slug}:${task.id}`, e);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error(`Failed to verify ${task.slug}:${task.id}`, e);
+                }
                 failed.push(`${task.slug}:${task.id} (${e.message})`);
             }
         }
@@ -175,7 +179,9 @@ export const VerifiableClient = () => {
                 );
                 successCount++;
             } catch (e: any) {
-                console.error(`Failed to send message ${task.slug}:${task.id}`, e);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error(`Failed to send message ${task.slug}:${task.id}`, e);
+                }
                 failed.push(`${task.slug}:${task.id} (${e.message})`);
             }
         }
@@ -214,7 +220,9 @@ export const VerifiableClient = () => {
                 await deleteDoc_C(task.slug, { id: task.id }, { cascadeDelete: true });
                 successCount++;
             } catch (e: any) {
-                console.error(`Failed to delete ${task.slug}:${task.id}`, e);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error(`Failed to delete ${task.slug}:${task.id}`, e);
+                }
                 failed.push(`${task.slug}:${task.id} (${e.message})`);
             }
         }

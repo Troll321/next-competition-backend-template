@@ -58,7 +58,9 @@ export const DocReview: React.FC<DocReviewProps> = ({
     const [isVerifying, setIsVerifying] = useState(false);
 
     const handleError = (e: any) => {
-        console.error(e);
+        if (process.env.NODE_ENV !== "production") {
+            console.error(e);
+        }
         if (e instanceof ExpectedError) {
             toast.error(`${e.name}: ${e.message}`);
         } else {
@@ -552,7 +554,9 @@ const FileFieldReview = ({
     const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(info.fileName);
 
     const handleError = (e: any) => {
-        console.error(e);
+        if (process.env.NODE_ENV !== "production") {
+            console.error(e);
+        }
         if (e instanceof ExpectedError) {
             toast.error(`${e.name}: ${e.message}`);
         } else {

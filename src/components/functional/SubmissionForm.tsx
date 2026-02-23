@@ -187,7 +187,9 @@ function PaymentField({
             );
             onChange(encodedInfo);
         } catch (error: any) {
-            console.error("Error processing payment action:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error processing payment action:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -343,7 +345,9 @@ function FileField({
                 const metadata = decodeFilePath_SC(decoded.path);
                 setFileMetadata(metadata);
             } catch (error) {
-                console.error("Error decoding file path:", error);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error("Error decoding file path:", error);
+                }
             }
         }
     }, [value, isUploadedFile]);
@@ -390,7 +394,9 @@ function FileField({
             );
             setFileInfo(info);
         } catch (error: any) {
-            console.error("Error getting file info:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error getting file info:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -555,7 +561,9 @@ export function SubmissionForm({
                     }
                 }
             } catch (error: any) {
-                console.error("Error loading submission data:", error);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error("Error loading submission data:", error);
+                }
                 if (error instanceof ExpectedError) {
                     toast.error(error.name, { description: error.message });
                 }
@@ -632,7 +640,9 @@ export function SubmissionForm({
                 try {
                     await uploadFileToSubmission_C(activeDocId, submittableSlug, name, file);
                 } catch (error: any) {
-                    console.error(`Error uploading file ${name}:`, error);
+                    if (process.env.NODE_ENV !== "production") {
+                        console.error(`Error uploading file ${name}:`, error);
+                    }
                     if (error instanceof ExpectedError) {
                         toast.error(error.name, {
                             description: `File upload failed for ${name}: ` + error.message,
@@ -658,7 +668,9 @@ export function SubmissionForm({
 
             toast.success("Saved", { description: "Submission changes saved." });
         } catch (error: any) {
-            console.error("Error saving submission:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error saving submission:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -685,7 +697,9 @@ export function SubmissionForm({
             });
             toast.success("Locked", { description: "Submission locked successfully." });
         } catch (error: any) {
-            console.error("Error locking submission:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error locking submission:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {

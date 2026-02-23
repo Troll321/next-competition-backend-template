@@ -41,7 +41,9 @@ export const SubmissionClient = () => {
     const [bulkMessageBody, setBulkMessageBody] = useState("");
 
     const handleError = (e: any) => {
-        console.error(e);
+        if (process.env.NODE_ENV !== "production") {
+            console.error(e);
+        }
         if (e instanceof ExpectedError) {
             toast.error(`${e.name}: ${e.message}`);
         } else {
@@ -200,7 +202,9 @@ export const SubmissionClient = () => {
                 );
                 successCount++;
             } catch (e: any) {
-                console.error(`Failed to verify ${task.verifiableId}`, e);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error(`Failed to verify ${task.verifiableId}`, e);
+                }
                 failed.push(`${task.verifiableId} (${e.message})`);
             }
         }
@@ -245,7 +249,9 @@ export const SubmissionClient = () => {
                 );
                 successCount++;
             } catch (e: any) {
-                console.error(`Failed to send message ${task.verifiableId}`, e);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error(`Failed to send message ${task.verifiableId}`, e);
+                }
                 failed.push(`${task.verifiableId} (${e.message})`);
             }
         }
@@ -281,7 +287,9 @@ export const SubmissionClient = () => {
                 await deleteSubmission_C(task.verifiableId, submittableSlug, { forceDelete: true });
                 successCount++;
             } catch (e: any) {
-                console.error(`Failed to delete ${task.verifiableId}`, e);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error(`Failed to delete ${task.verifiableId}`, e);
+                }
                 failed.push(`${task.verifiableId} (${e.message})`);
             }
         }

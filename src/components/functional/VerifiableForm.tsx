@@ -160,7 +160,9 @@ function FileField({
                 const metadata = decodeFilePath_SC(decoded.path);
                 setFileMetadata(metadata);
             } catch (error) {
-                console.error("Error decoding file path:", error);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error("Error decoding file path:", error);
+                }
             }
         }
     }, [value, docId, isUploadedFile]);
@@ -206,7 +208,9 @@ function FileField({
             const info = await getVerifiableFileInfo_C(slug, docId, name);
             setFileInfo(info);
         } catch (error: any) {
-            console.error("Error getting file info:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error getting file info:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -306,7 +310,9 @@ function PaymentField({
             const encodedInfo = await payToVerifiable_C(slug, docId, name, checkOnly);
             onChange(encodedInfo);
         } catch (error: any) {
-            console.error("Error processing payment action:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error processing payment action:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -569,7 +575,9 @@ export default function VerifiableForm({
                 const level = await isAccessorVerified_C(dependencySlug, accessor);
                 levels[accessor] = level;
             } catch (error) {
-                console.error(`Error checking accessor ${accessor}:`, error);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error(`Error checking accessor ${accessor}:`, error);
+                }
                 levels[accessor] = null;
             }
         }
@@ -619,7 +627,9 @@ export default function VerifiableForm({
                     }
                 }
             } catch (error) {
-                console.error("Error loading form data:", error);
+                if (process.env.NODE_ENV !== "production") {
+                    console.error("Error loading form data:", error);
+                }
             } finally {
                 setLoading(false);
             }
@@ -697,7 +707,9 @@ export default function VerifiableForm({
                         [name]: uploadedUrl,
                     }));
                 } catch (error) {
-                    console.error(`Error uploading file ${name}:`, error);
+                    if (process.env.NODE_ENV !== "production") {
+                        console.error(`Error uploading file ${name}:`, error);
+                    }
                 }
             }
 
@@ -710,7 +722,9 @@ export default function VerifiableForm({
                 setOriginalFormData(updatedDoc);
             }
         } catch (error: any) {
-            console.error("Error saving form:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error saving form:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -739,7 +753,9 @@ export default function VerifiableForm({
                 }
             }
         } catch (error: any) {
-            console.error("Error creating document:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error creating document:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -772,7 +788,9 @@ export default function VerifiableForm({
                 description: "Verification requested successfully.",
             });
         } catch (error: any) {
-            console.error("Error requesting verification:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error requesting verification:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -798,7 +816,9 @@ export default function VerifiableForm({
             setOriginalFormData({});
             setJoinCode("");
         } catch (error: any) {
-            console.error("Error deleting document:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error deleting document:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -823,7 +843,9 @@ export default function VerifiableForm({
             setOriginalFormData({});
             setJoinCode("");
         } catch (error: any) {
-            console.error("Error leaving document:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error leaving document:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -853,7 +875,9 @@ export default function VerifiableForm({
                 setAccessorVerifiedLevels(levels);
             }
         } catch (error: any) {
-            console.error("Error kicking member:", error);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error kicking member:", error);
+            }
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -896,7 +920,9 @@ export default function VerifiableForm({
             }
             setJoinCode("");
         } catch (e) {
-            console.error("Error joining:", e);
+            if (process.env.NODE_ENV !== "production") {
+                console.error("Error joining:", e);
+            }
             alert("Error joining with code.");
         } finally {
             setJoining(false);
