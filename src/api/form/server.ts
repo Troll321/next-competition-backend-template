@@ -635,6 +635,9 @@ export async function deleteDoc_S(
         allArr.push(...required_on_create);
     }
 
+    if (!_isFromServer) {
+        where.creator = user!.email!;
+    }
     const docs = await readDoc_S(slug, where, undefined, user ?? undefined, _isFromServer);
     if (docs.length === 0) {
         return;
@@ -643,10 +646,7 @@ export async function deleteDoc_S(
 
         for (let i = 0; i < docs.length; i++) {
             const doc = docs[i];
-            if (
-                !adminOption?.cascadeDelete &&
-                (doc.verified >= 1 || (!_isFromServer && doc.creator !== user!.email))
-            ) {
+            if (!adminOption?.cascadeDelete && doc.verified >= 1) {
                 throw new FormError(FormErrorEnum.NotAllowed);
             }
 
@@ -836,6 +836,8 @@ export async function shareDoc_S(
 
     for (let i = 0; i < unshare.length; i++) {
         newObj[unshare[i]] = false;
+
+        // @TODO: Buat ini biar ngecek kalo dia diunshare depended_by dia juga diunshare!
     }
 
     for (let i = 0; i < share.length; i++) {
