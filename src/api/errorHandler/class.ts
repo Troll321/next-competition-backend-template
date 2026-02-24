@@ -151,6 +151,7 @@ export class FormError extends ExpectedError {
 export enum UploadErrorEnum {
     InvalidSQLURL,
     NotAllowed,
+    ThirdPartyError,
 }
 
 export class UploadError extends ExpectedError {
@@ -168,6 +169,12 @@ export class UploadError extends ExpectedError {
                 message = "Operation is not allowed";
                 name = "NotAllowed";
                 code = 403;
+                break;
+            case UploadErrorEnum.ThirdPartyError:
+                message =
+                    "The 3rd party storage might be down now, or you might shorten your filename";
+                name = "ThirdPartyError";
+                code = 501;
                 break;
         }
         super(message, "UploadError", name, code);

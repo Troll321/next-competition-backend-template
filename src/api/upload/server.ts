@@ -16,6 +16,7 @@ import { decodeSQLURL_SC, encodeSQLURL_SC } from "../utils/string";
 import { getCollection_S, getMongoDB_S } from "../utils/getMongodb";
 import { Db } from "mongodb";
 import { getValidUser_S, isAdmin_S } from "../authentication/server";
+import { GDriveAdapter } from "./gdriveAdapter";
 
 export interface StorageAdapter {
     uploadFile_S(uId: string, file: File): Promise<string>;
@@ -47,10 +48,11 @@ const db: Db = (await getMongoDB_S()).db("nesco_web");
  */
 const adapters: Record<string, StorageAdapter> = {
     supabase: new SupabaseAdapter("mystorage"),
+    gdrive: new GDriveAdapter(),
 };
 
 async function uploadFile_S(uId: string, file: File): Promise<string> {
-    const adapter = "supabase"; // Choose the adapter to use
+    const adapter = "gdrive"; // Choose the adapter to use
     return encodeSQLURL_SC(adapter, await adapters[adapter].uploadFile_S(uId, file));
 }
 

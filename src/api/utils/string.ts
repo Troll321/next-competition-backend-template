@@ -57,6 +57,8 @@ export function encodeSQLURL_SC(adapter: string, path: string) {
     return `${adapter}${sqlUrlLimiter}${path}`;
 }
 
+const adapterMetaLimiter = "|";
+
 /**
  * Generates a unique file path for uploads.
  * Structure: base64(userId)/timestamp_base64(filename).ext
@@ -64,7 +66,7 @@ export function encodeSQLURL_SC(adapter: string, path: string) {
  * @param {File} file - The file object.
  * @returns {string} The generated file path.
  */
-export function encodeFilePath_SC(userId: string, file: File) {
+export function encodeFilePath_SC(userId: string, file: File, adapterMeta?: string) {
     const fileName = file.name;
     const lastDot = fileName.lastIndexOf(".");
     let baseName, extension;
@@ -75,16 +77,30 @@ export function encodeFilePath_SC(userId: string, file: File) {
         baseName = lastDot === -1 ? fileName : fileName.slice(0, lastDot);
         extension = lastDot === -1 ? "" : fileName.slice(lastDot + 1);
     }
-    return `${base64UrlEncode_SC(userId)}/${Date.now()}_${base64UrlEncode_SC(baseName)}.${extension}`;
+
+    let out = `${base64UrlEncode_SC(userId)}/${Date.now()}_${base64UrlEncode_SC(baseName)}.${extension}`;
+    if (adapterMeta) {
+        out = `${adapterMetaLimiter}${adapterMeta}${adapterMetaLimiter}` + out;
+    }
+    return out;
 }
 
 /**
  * Decodes a file path to extract metadata.
  * @param {string} filePath - The file path to decode.
- * @returns {{userId: string, unixTime: string, fileName: string}} The extracted metadata.
+ * @returns {{userId: string, unixTime: string, fileName: string, adapterMeta?: string}} The extracted metadata.
  */
 export function decodeFilePath_SC(filePath: string) {
-    let arr = filePath.split("/");
+    let adapterMeta: undefined | string = undefined;
+    let arr;
+    if (filePath[0] === adapterMetaLimiter) {
+        // Use adapterMeta
+        arr = filePath.split(adapterMetaLimiter);
+        arr.shift();
+        filePath = arr.pop()!;
+        adapterMeta = arr.join(adapterMetaLimiter);
+    }
+    arr = filePath.split("/");
     const userId = base64UrlDecode_SC(arr.shift()!);
     arr = arr.join("").split("_");
     const unixTime = arr.shift()!;
@@ -98,7 +114,7 @@ export function decodeFilePath_SC(filePath: string) {
             return val;
         })
         .join(".");
-    return { userId, unixTime, fileName };
+    return { userId, unixTime, fileName, adapterMeta };
 }
 
 const A = 12887461,
