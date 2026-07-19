@@ -3,7 +3,7 @@ import { httpErrorHandler_S } from "@/api/errorHandler/server";
 import { verifyDoc_S } from "@/api/form/server";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { slug: string; id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string; id: string }> }) {
     try {
         const { slug, id } = await params;
         const iId = parseInt(id);

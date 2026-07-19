@@ -243,8 +243,8 @@ export const SubmissionClient = () => {
                 await sendMessageToSubmission_C(
                     task.verifiableId,
                     submittableSlug,
-                    bulkMessageSubject || `BulkAction`,
-                    bulkMessageBody || "Processed via bulk action",
+                    bulkMessageSubject,
+                    bulkMessageBody,
                     sendEmail
                 );
                 successCount++;

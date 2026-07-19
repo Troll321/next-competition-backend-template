@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { verifiable_doc_id: string; submittable_slug: string } }
+    { params }: { params: Promise<{ verifiable_doc_id: string; submittable_slug: string }> }
 ) {
     try {
         const { verifiable_doc_id, submittable_slug } = await params;
@@ -61,7 +61,7 @@ export async function GET(
 
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { verifiable_doc_id: string; submittable_slug: string } }
+    { params }: { params: Promise<{ verifiable_doc_id: string; submittable_slug: string }> }
 ) {
     try {
         const { verifiable_doc_id, submittable_slug } = await params;
@@ -79,7 +79,7 @@ export async function PUT(
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { verifiable_doc_id: string; submittable_slug: string } }
+    { params }: { params: Promise<{ verifiable_doc_id: string; submittable_slug: string }> }
 ) {
     try {
         const { verifiable_doc_id, submittable_slug } = await params;
@@ -106,7 +106,7 @@ export async function POST(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { verifiable_doc_id: string; submittable_slug: string } }
+    { params }: { params: Promise<{ verifiable_doc_id: string; submittable_slug: string }> }
 ) {
     try {
         const { verifiable_doc_id, submittable_slug } = await params;

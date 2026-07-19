@@ -114,7 +114,7 @@ export const VerifiableClient = () => {
         const failed: string[] = [];
         let successCount = 0;
 
-        let tasks = Array.from(selectedDocs.values());
+        const tasks = Array.from(selectedDocs.values());
 
         // Sort tasks based on depth (biggest depth first)
         // This ensures nested dependencies (which appear deeper in the view) are processed first
@@ -173,8 +173,8 @@ export const VerifiableClient = () => {
                 await sendMessageToVerifiable_C(
                     task.slug,
                     task.id,
-                    bulkMessageSubject || `BulkAction`,
-                    bulkMessageBody || "Processed via bulk action",
+                    bulkMessageSubject,
+                    bulkMessageBody,
                     sendEmail
                 );
                 successCount++;

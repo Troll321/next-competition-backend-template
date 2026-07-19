@@ -1,6 +1,6 @@
 import { HttpError, HttpErrorEnum } from "@/api/errorHandler/class";
 import { httpErrorHandler_S } from "@/api/errorHandler/server";
-import { payToSubmission_S } from "@root/src/api/payment/server";
+import { payToSubmission_S } from "@/api/payment/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {

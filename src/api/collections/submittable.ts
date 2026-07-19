@@ -1,6 +1,7 @@
-import { ArrayFieldValidation, CollectionConfig, TextFieldValidation } from "payload";
+import { ArrayFieldValidation, CollectionConfig } from "payload";
+import { incrementVersionNumber, sCacheSubmittable_S } from "../utils/redisCaching";
 
-const preloadedField = ["signed_urls"];
+const preloadedField = ["signed_urls", "versions"];
 
 function _safeName(str: any) {
     if (typeof str === "string" && !/^[a-z0-9_]+$/.test(str)) {
@@ -27,6 +28,11 @@ const uniqueName: ArrayFieldValidation = function (arr, ctx) {
 
 export const Submittable: CollectionConfig = {
     slug: "submittable",
+    access: {
+        read: () => {
+            return true;
+        },
+    },
     fields: [
         {
             name: "slug",
@@ -181,5 +187,13 @@ export const Submittable: CollectionConfig = {
         description:
             "Warning: Wrong operation could delete production data, please know what you are doing!",
         group: "Dangerous",
+    },
+    hooks: {
+        afterChange: [
+            async ({ data, previousDoc }) => {
+                await sCacheSubmittable_S(data ? (data as any) : null, previousDoc.slug);
+                await incrementVersionNumber("submittable", previousDoc.slug, data === undefined);
+            },
+        ],
     },
 };

@@ -12,7 +12,7 @@ export function Form() {
             <div className="h-[250px] w-2 bg-white"></div>
             <div>
                 <h1>Tim Paper Form</h1>
-                <VerifiableForm slug="tim_paper" />
+                <VerifiableForm slug="tim_poster" />
             </div>
         </div>
     );

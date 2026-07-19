@@ -24,6 +24,15 @@ import { getDrizzle_S } from "../utils/getDrizzle";
 import { deleteFile_S } from "../upload/server";
 import { fromBase36_SC, permuteNumber_SC, toBase36_SC, unpermuteNumber_SC } from "../utils/string";
 import { sendEmail_S } from "../utils/email";
+import { REGISTRATION_END_DATE } from "../constants";
+import {
+    gCacheAccessor_S,
+    gCacheDoc_S,
+    gCacheVerifiable_S,
+    sCacheAccessor_S,
+    sCacheDoc_S,
+    sCacheVerifiable_S,
+} from "../utils/redisCaching";
 
 const payload: Awaited<ReturnType<typeof getPayloadClient_S>> = await getPayloadClient_S();
 const drizzle = getDrizzle_S();
@@ -187,6 +196,10 @@ function sanitizeInsert(
  * @throws {FormError} If slug is invalid (InvalidSlug).
  */
 export async function getVerifiable_S(slug: string) {
+    const out = await gCacheVerifiable_S(slug);
+    if (out !== undefined) {
+        return out;
+    }
     const res = await payload.find({
         collection: "verifiable",
         depth: 0,
@@ -202,6 +215,7 @@ export async function getVerifiable_S(slug: string) {
         throw new FormError(FormErrorEnum.InvalidSlug);
     }
 
+    await sCacheVerifiable_S(res.docs[0], slug);
     return res.docs[0];
 }
 
@@ -226,7 +240,7 @@ async function mapToAdminSqlRow(
             dependedByArr: [],
         };
 
-        // @ts-ignore total_count is string (sql stuff)
+        // @ts-expect-error total_count is string (sql stuff)
         outObj.total_count = parseInt(outObj.total_count);
         if (!adminOption.shouldPopulate) {
             outRes.push(outObj);
@@ -245,6 +259,7 @@ async function mapToAdminSqlRow(
         // depended_by has a default value [] property thus not null
         const set = new Set<ReccurSQLRow>();
         for (let j = 0; j < depended_by!.length; j++) {
+            console.log(depended_by);
             (
                 await readDoc_S(
                     depended_by![j].slug,
@@ -269,6 +284,39 @@ async function mapToAdminSqlRow(
     return outRes;
 }
 
+interface ReadDocRDCOption {
+    count?: boolean;
+    verAb?: number;
+    verBel?: number;
+    project?: string[];
+}
+
+function docShouldGetCache(
+    rawWhere: UnsanitizedFormWhere,
+    adminOption?: AdminFormReadOption,
+    _isFromServer?: boolean,
+    _accessor?: string[],
+    _rdc?: ReadDocRDCOption
+): boolean {
+    if (Object.keys(rawWhere).length !== 0 || adminOption || _rdc) {
+        return false;
+    }
+
+    // Check if there are any accessor
+    if (_isFromServer && (!_accessor || _accessor.length !== 1)) {
+        return false;
+    }
+    return true;
+}
+
+// This condition always met because of the docShouldGetCache check
+function getCacheAccessor(user: User | null, _accessor?: string[]): string[] {
+    if (user) {
+        return [user.email!];
+    }
+    return _accessor!;
+}
+
 export async function readDoc_S(
     slug: string,
     rawWhere: UnsanitizedFormWhere,
@@ -276,12 +324,7 @@ export async function readDoc_S(
     _user?: User,
     _isFromServer?: boolean,
     _accessor?: string[],
-    _rdc?: {
-        count?: boolean;
-        verAb?: number;
-        verBel?: number;
-        project?: string[];
-    }
+    _rdc?: ReadDocRDCOption
 ): Promise<SQLRow[]>;
 
 export async function readDoc_S(
@@ -291,12 +334,7 @@ export async function readDoc_S(
     _user?: User,
     _isFromServer?: boolean,
     _accessor?: string[],
-    _rdc?: {
-        count?: boolean;
-        verAb?: number;
-        verBel?: number;
-        project?: string[];
-    }
+    _rdc?: ReadDocRDCOption
 ): Promise<AdminSQLRow[]>;
 
 export async function readDoc_S(
@@ -306,12 +344,7 @@ export async function readDoc_S(
     _user?: User,
     _isFromServer: boolean = false,
     _accessor?: string[],
-    _rdc?: {
-        count?: boolean;
-        verAb?: number;
-        verBel?: number;
-        project?: string[];
-    }
+    _rdc?: ReadDocRDCOption
 ): Promise<SQLRow[] | AdminSQLRow[]> {
     if (adminOption && !_isFromServer) {
         // Check if admin
@@ -324,9 +357,34 @@ export async function readDoc_S(
 
     const user = await getValidUser_S(_user, _isFromServer);
 
+    const _docShouldGetCache = docShouldGetCache(
+        rawWhere,
+        adminOption,
+        _isFromServer,
+        _accessor,
+        _rdc
+    );
+    if (_docShouldGetCache) {
+        const out = await gCacheDoc_S(slug, getCacheAccessor(user, _accessor)[0]);
+        if (out !== undefined) {
+            return out;
+        }
+    }
+
     const { constraints, required_on_create, verifiable_code, depends_on, depended_by } =
         await getVerifiable_S(slug);
-    const where = sanitizeWhere(rawWhere, constraints, required_on_create, _isFromServer);
+
+    let where: FormWhere;
+    if (process.env.USE_UNSAFE_OPTIMISATION === "true") {
+        // UNSAFE CHANGES, THIS EXPOSES COMPATIBILITY ISSUE IN EXCHANGE FOR SPEED!
+        where = rawWhere;
+        (where as UnsanitizedFormWhere).shared = undefined;
+        (where as UnsanitizedFormWhere).creator = undefined;
+        delete where.shared;
+        delete where.creator;
+    } else {
+        where = sanitizeWhere(rawWhere, constraints, required_on_create, _isFromServer);
+    }
 
     let whereQ = null;
     if (Object.keys(where).length > 0) {
@@ -364,24 +422,20 @@ export async function readDoc_S(
         let queryRes: any;
         if (adminOption.orderBy.field === "id") {
             if (!whereQ) {
-                //@ts-ignore This is expected from the possible field values defined in Payload
                 queryRes = await drizzle.execute(
                     genSql_S`WITH cols AS (SELECT *, ROW_NUMBER() OVER(ORDER BY id ${r_S(adminOption.orderBy.isAsc ? "ASC" : "DESC")}) AS _msyssec, ROW_NUMBER() OVER(ORDER BY id ${r_S(!adminOption.orderBy.isAsc ? "ASC" : "DESC")}) AS _msysrevsec FROM ${r_S(`external_self_managed.${slug}`)}) SELECT *, cols._msyssec + cols._msysrevsec - 1 AS total_count FROM cols WHERE cols._msyssec BETWEEN ${(adminOption.page - 1) * ADMIN_PAGING_LIMIT + 1} AND ${adminOption.page * ADMIN_PAGING_LIMIT} ORDER BY cols._msyssec`
                 );
             } else {
-                //@ts-ignore This is expected from the possible field values defined in Payload
                 queryRes = await drizzle.execute(
                     genSql_S`WITH cols AS (SELECT *, ROW_NUMBER() OVER(ORDER BY id ${r_S(adminOption.orderBy.isAsc ? "ASC" : "DESC")}) AS _msyssec, ROW_NUMBER() OVER(ORDER BY id ${r_S(!adminOption.orderBy.isAsc ? "ASC" : "DESC")}) AS _msysrevsec FROM ${r_S(`external_self_managed.${slug}`)} WHERE ${whereQ}) SELECT *, cols._msyssec + cols._msysrevsec - 1 AS total_count FROM cols WHERE cols._msyssec BETWEEN ${(adminOption.page - 1) * ADMIN_PAGING_LIMIT + 1} AND ${adminOption.page * ADMIN_PAGING_LIMIT} ORDER BY cols._msyssec`
                 );
             }
         } else {
             if (!whereQ) {
-                //@ts-ignore This is expected from the possible field values defined in Payload
                 queryRes = await drizzle.execute(
                     genSql_S`WITH cols AS (SELECT *, ROW_NUMBER() OVER(ORDER BY id ${r_S(adminOption.orderBy.isAsc ? "ASC" : "DESC")}) AS _msyssec, ROW_NUMBER() OVER(ORDER BY id ${r_S(!adminOption.orderBy.isAsc ? "ASC" : "DESC")}) AS _msysrevsec FROM ${r_S(`external_self_managed.${slug}`)}) SELECT *, cols._msyssec + cols._msysrevsec - 1 AS total_count FROM cols ORDER BY ${r_S(adminOption.orderBy.field)} LIMIT ${ADMIN_PAGING_LIMIT} OFFSET ${(adminOption.page - 1) * ADMIN_PAGING_LIMIT}`
                 );
             } else {
-                //@ts-ignore This is expected from the possible field values defined in Payload
                 queryRes = await drizzle.execute(
                     genSql_S`WITH cols AS (SELECT *, ROW_NUMBER() OVER(ORDER BY id ${r_S(adminOption.orderBy.isAsc ? "ASC" : "DESC")}) AS _msyssec, ROW_NUMBER() OVER(ORDER BY id ${r_S(!adminOption.orderBy.isAsc ? "ASC" : "DESC")}) AS _msysrevsec FROM ${r_S(`external_self_managed.${slug}`)} WHERE ${whereQ}) SELECT *, cols._msyssec + cols._msysrevsec - 1 AS total_count FROM cols ORDER BY ${r_S(adminOption.orderBy.field)} LIMIT ${ADMIN_PAGING_LIMIT} OFFSET ${(adminOption.page - 1) * ADMIN_PAGING_LIMIT}`
                 );
@@ -399,12 +453,10 @@ export async function readDoc_S(
         let queryRes: SQLRow[];
         if (_isFromServer && !_accessor) {
             if (!whereQ) {
-                //@ts-ignore This is expected from the possible field values defined in Payload
                 queryRes = await drizzle.execute(
                     genSql_S`SELECT ${r_S(_rdc?.count ? "COUNT(*) as length" : _rdc?.project && _rdc.project.length > 0 ? _rdc.project.join(", ") : "*")} FROM ${r_S(`external_self_managed.${slug}`)}${r_S(_rdc?.verAb ? ` WHERE verified > ${_rdc.verAb}` : _rdc?.verBel ? ` WHERE verified < ${_rdc.verBel}` : "")}`
                 );
             } else {
-                //@ts-ignore This is expected from the possible field values defined in Payload
                 queryRes = await drizzle.execute(
                     genSql_S`SELECT ${r_S(_rdc?.count ? "COUNT(*) as length" : _rdc?.project && _rdc.project.length > 0 ? _rdc.project.join(", ") : "*")} FROM ${r_S(`external_self_managed.${slug}`)} WHERE ${whereQ}${r_S(_rdc?.verAb ? ` AND verified > ${_rdc.verAb}` : _rdc?.verBel ? ` AND verified < ${_rdc.verBel}` : "")}`
                 );
@@ -413,19 +465,17 @@ export async function readDoc_S(
             // There are only 2 option thus, this is safe
             const toQuery = _accessor && _isFromServer ? _accessor : [user!.email!];
             if (!whereQ) {
-                //@ts-ignore This is expected from the possible field values defined in Payload
                 queryRes = await drizzle.execute(
                     genSql_S`SELECT ${r_S(_rdc?.count ? "COUNT(*) as length" : _rdc?.project && _rdc.project.length > 0 ? _rdc.project.join(", ") : "*")} FROM ${r_S(`external_self_managed.${slug}`)} WHERE ${genAccesor_S(toQuery)}${r_S(_rdc?.verAb ? ` AND verified > ${_rdc.verAb}` : _rdc?.verBel ? ` AND verified < ${_rdc.verBel}` : "")}`
                 );
             } else {
-                //@ts-ignore This is expected from the possible field values defined in Payload
                 queryRes = await drizzle.execute(
                     genSql_S`SELECT ${r_S(_rdc?.count ? "COUNT(*) as length" : _rdc?.project && _rdc.project.length > 0 ? _rdc.project.join(", ") : "*")} FROM ${r_S(`external_self_managed.${slug}`)} WHERE ${genAccesor_S(toQuery)} AND ${whereQ}${r_S(_rdc?.verAb ? ` AND verified > ${_rdc.verAb}` : _rdc?.verBel ? ` AND verified < ${_rdc.verBel}` : "")}`
                 );
             }
         }
 
-        return queryRes.map((sqlRow) => {
+        const output = queryRes.map((sqlRow) => {
             const outObj = {
                 ...sqlRow,
                 verifiableCode: encodeFullVerifiableCode(verifiable_code, sqlRow.id as number),
@@ -436,6 +486,11 @@ export async function readDoc_S(
             }
             return outObj;
         });
+
+        if (_docShouldGetCache) {
+            await sCacheDoc_S(output, slug, getCacheAccessor(user, _accessor));
+        }
+        return output;
     }
 }
 
@@ -458,6 +513,14 @@ export async function createDoc_S(
 
     const { required_on_create, constraints, singleton } = await getVerifiable_S(slug);
     const insert = sanitizeInsert(rawInsert, constraints, required_on_create, true, _isFromServer);
+
+    if (!_isFromServer && slug !== "profile") {
+        const deadline = new Date(REGISTRATION_END_DATE).getTime();
+        if (Date.now() > deadline) {
+            throw new FormError(FormErrorEnum.NotAllowed, "Registration is closed");
+        }
+    }
+
 
     if (
         singleton &&
@@ -493,6 +556,9 @@ export async function createDoc_S(
     if (cols.length === 0) {
         throw new FormError(FormErrorEnum.InvalidInput, "insert");
     }
+
+    await sCacheDoc_S(null, slug, [user!.email!]);
+    await sCacheAccessor_S(null, slug, [user!.email!]);
 
     try {
         await drizzle.execute(
@@ -542,17 +608,16 @@ export async function updateDoc_S(
         whereQ = genUW_S(where, [" = ", " AND "]);
     }
 
+    const docs = await /* rdcProject */ readDoc_S(
+        slug,
+        where,
+        undefined,
+        user ?? undefined,
+        _isFromServer,
+        _accessor,
+        { project: ["verified", "id", "shared", "creator"] }
+    );
     if (!_ignoreVerifiedChecking) {
-        const docs = await /* rdcProject */ readDoc_S(
-            slug,
-            where,
-            undefined,
-            user ?? undefined,
-            _isFromServer,
-            _accessor,
-            { project: ["verified"] }
-        );
-
         if (docs.length === 0) {
             return;
         } else {
@@ -566,6 +631,12 @@ export async function updateDoc_S(
 
     const insertQ: iCustomGenSQL = genUW_S(insert, [" = ", ", "]);
     try {
+        for (let i = 0; i < docs.length; i++) {
+            const cacheAccessor = [docs[i].creator, ...docs[i].shared];
+            await sCacheDoc_S(null, slug, cacheAccessor);
+            await sCacheAccessor_S(null, slug, cacheAccessor);
+        }
+
         if (_isFromServer && !_accessor) {
             if (!whereQ) {
                 await drizzle.execute(
@@ -638,7 +709,15 @@ export async function deleteDoc_S(
     if (!_isFromServer) {
         where.creator = user!.email!;
     }
-    const docs = await readDoc_S(slug, where, undefined, user ?? undefined, _isFromServer);
+    const docs = await readDoc_S(
+        slug,
+        where,
+        undefined,
+        user ?? undefined,
+        _isFromServer,
+        _accessor
+    );
+
     if (docs.length === 0) {
         return;
     } else {
@@ -657,6 +736,7 @@ export async function deleteDoc_S(
         }
 
         const accessorEmails = [...accessorSet];
+
         // depended_by has a default value [] property thus not null
         for (let j = 0; j < depended_by!.length; j++) {
             if (adminOption?.cascadeDelete) {
@@ -689,6 +769,12 @@ export async function deleteDoc_S(
     let whereQ = null;
     if (Object.keys(where).length > 0) {
         whereQ = genUW_S(where, [" = ", " AND "]);
+    }
+
+    for (let i = 0; i < docs.length; i++) {
+        const cacheAccessor = [docs[i].creator, ...docs[i].shared];
+        await sCacheDoc_S(null, slug, cacheAccessor);
+        await sCacheAccessor_S(null, slug, cacheAccessor);
     }
 
     if (_isFromServer && !_accessor) {
@@ -745,7 +831,11 @@ export async function requestVerify_S(slug: string, id: number) {
         return;
     }
 
-    const { depends_on, constraints, required_on_create } = await getVerifiable_S(slug);
+    const { depends_on, constraints, required_on_create, min_shared } = await getVerifiable_S(slug);
+
+    if (doc.shared.length < min_shared) {
+        throw new FormError(FormErrorEnum.VerificationFail, "shared is less than min_shared");
+    }
 
     const allArr = [...constraints];
     if (required_on_create) {
@@ -757,7 +847,7 @@ export async function requestVerify_S(slug: string, id: number) {
             doc[name] === null ||
             (type === "payment" && (doc[name] as string).startsWith("pending"))
         ) {
-            throw new FormError(FormErrorEnum.VerificationFail, "null property");
+            throw new FormError(FormErrorEnum.VerificationFail, "null property or pending payment");
         }
     }
 
@@ -819,6 +909,9 @@ export async function shareDoc_S(
     )[0];
     if (!doc) {
         throw new FormError(FormErrorEnum.DocumentNotFound);
+    }
+    if (doc.verified === 2) {
+        throw new FormError(FormErrorEnum.NotAllowed);
     }
     const { singleton, depends_on, max_shared } = await getVerifiable_S(slug);
 
@@ -892,6 +985,13 @@ export async function shareDoc_S(
         throw new FormError(FormErrorEnum.SharedExceedLimit);
     }
 
+    const cacheAccessor = out.filter((nowAccessor) => {
+        return !doc.shared.includes(nowAccessor);
+    });
+    await sCacheDoc_S(null, slug, cacheAccessor);
+    await sCacheAccessor_S(null, slug, cacheAccessor);
+
+    // Dia beda sama yang di bawah vvv karena dia perlu ngehandle doc dia bukan yang ini
     await updateDoc_S(slug, { shared: out }, { id: id }, user ?? undefined, true, true);
 }
 
@@ -902,6 +1002,10 @@ export async function shareDoc_S(
  * @returns {Promise<number | null>} The verified status (e.g., 2) or null.
  */
 export async function isAccessorVerified_S(slug: string, accessor: string) {
+    const cacheOut = await gCacheAccessor_S(accessor, slug);
+    if (cacheOut !== undefined) {
+        return cacheOut;
+    }
     let out = 999;
     const docs = await /** rdcProjectOpt */ readDoc_S(
         slug,
@@ -915,7 +1019,10 @@ export async function isAccessorVerified_S(slug: string, accessor: string) {
     for (let i = 0; i < docs.length; i++) {
         out = Math.min(out, docs[i].verified);
     }
-    return out === 999 ? null : out;
+
+    const verdict = out === 999 ? null : out;
+    await sCacheAccessor_S(verdict, slug, [accessor]);
+    return verdict;
 }
 
 /**

@@ -1,6 +1,7 @@
 "use client";
 import { Button, toast } from "@payloadcms/ui";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
     deleteSubmission_C,
     reviewSubmission_C,
@@ -175,7 +176,7 @@ export const SubmissionReview: React.FC<SubmissionReviewProps> = ({
             await sendMessageToSubmission_C(
                 submission.verifiableId,
                 submittableSlug,
-                messageSubject || "Message",
+                messageSubject,
                 messageBody,
                 sendEmail
             );
@@ -504,6 +505,7 @@ const FieldValueRenderer = ({
         try {
             const paymentInfo = decodePaymentInfo_SC(value as string);
             const isExpired =
+                // eslint-disable-next-line react-hooks/purity
                 paymentInfo.status === "pending" && paymentInfo.expiredDate < Date.now();
             const statusText = isExpired ? "EXPIRED" : paymentInfo.status;
             const statusClass = isExpired ? "expired" : paymentInfo.status;
@@ -587,10 +589,11 @@ const SubmissionFileFieldView = ({
                     allowRead: true,
                 }
             );
-            if (fileInfo.signedUrl && isImage) {
+            if (fileInfo.signedUrl) {
                 setPreviewUrl(fileInfo.signedUrl);
-            } else {
-                window.open(fileInfo.signedUrl, "_blank");
+                if (!isImage) {
+                    window.open(fileInfo.signedUrl, "_blank");
+                }
             }
         } catch (e) {
             toast.error("Failed to load file info");
@@ -620,6 +623,13 @@ const SubmissionFileFieldView = ({
                 {loading ? "Loading..." : "Preview / Download"}
             </Button>
             {previewUrl && (
+                <div>
+                    <Link href={previewUrl} style={{ textDecoration: "underline" }} target="_blank">
+                        Preview Url
+                    </Link>
+                </div>
+            )}
+            {previewUrl && isImage && (
                 <>
                     <img src={previewUrl} alt="Preview" className="preview-image" />
                     <Button

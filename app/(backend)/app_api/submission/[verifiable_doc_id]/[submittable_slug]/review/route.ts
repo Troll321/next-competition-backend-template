@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { verifiable_doc_id: string; submittable_slug: string } }
+    { params }: { params: Promise<{ verifiable_doc_id: string; submittable_slug: string }> }
 ) {
     try {
         const { verifiable_doc_id, submittable_slug } = await params;

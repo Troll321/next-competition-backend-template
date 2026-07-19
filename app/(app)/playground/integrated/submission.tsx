@@ -5,7 +5,7 @@ import { SubmissionForm } from "@/components/functional/SubmissionForm";
 export function Submission() {
     return (
         <div>
-            <SubmissionForm submittableSlug="paper_submission" />
+            <SubmissionForm submittableSlug="poster_submission" />
         </div>
     );
 }

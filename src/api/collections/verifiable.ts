@@ -7,6 +7,7 @@ import {
     TextFieldValidation,
 } from "payload";
 import { getDrizzle_S } from "../utils/getDrizzle";
+import { incrementVersionNumber, sCacheVerifiable_S } from "../utils/redisCaching";
 
 const drizzle = getDrizzle_S();
 const preloadedField = [
@@ -36,7 +37,7 @@ const uniqueObjName: ArrayFieldValidation = function (arr, ctx) {
     if (!(ctx.siblingData as any).required_on_create) {
         (ctx.siblingData as any).required_on_create = [];
     }
-    //@ts-ignore This is based on the config
+    //@ts-expect-error This is based on the config
     const allName = [...ctx.siblingData.constraints, ...ctx.siblingData.required_on_create];
     for (let i = 0; i < allName.length; i++) {
         if (isExist[allName[i].name]) {
@@ -262,6 +263,11 @@ async function deleteCol(tableName: string, name: string, unique: boolean, db: a
 
 export const Verifiable: CollectionConfig = {
     slug: "verifiable",
+    access: {
+        read: () => {
+            return true;
+        },
+    },
     fields: [
         {
             name: "slug",
@@ -289,6 +295,7 @@ export const Verifiable: CollectionConfig = {
             type: "checkbox",
             defaultValue: true,
         },
+        { name: "min_shared", type: "number", defaultValue: 0, min: 0, required: true },
         { name: "max_shared", type: "number", defaultValue: 0, min: 0, required: true },
         { name: "depends_on", type: "text" },
         {
@@ -323,6 +330,9 @@ export const Verifiable: CollectionConfig = {
     hooks: {
         afterChange: [
             async ({ operation, data, previousDoc, req }) => {
+                await sCacheVerifiable_S(data ? (data as any) : null, previousDoc.slug);
+                await incrementVersionNumber("verifiable", previousDoc.slug, data === undefined);
+
                 if (data === undefined) {
                     return;
                 }
@@ -345,7 +355,7 @@ export const Verifiable: CollectionConfig = {
                         const doc = (
                             await req.payload.find({
                                 collection: "verifiable",
-                                where: { slug: data.depends_on },
+                                where: { slug: { equals: data.depends_on } },
                             })
                         ).docs[0];
                         if (!doc) {
@@ -358,6 +368,7 @@ export const Verifiable: CollectionConfig = {
                                 ],
                             });
                         }
+
                         await req.payload.update({
                             collection: "verifiable",
                             id: doc.id,
@@ -372,9 +383,10 @@ export const Verifiable: CollectionConfig = {
                         const doc = (
                             await req.payload.find({
                                 collection: "verifiable",
-                                where: { slug: previousDoc.depends_on },
+                                where: { slug: { equals: previousDoc.depends_on } },
                             })
                         ).docs[0];
+
                         await req.payload.update({
                             collection: "verifiable",
                             id: doc.id,

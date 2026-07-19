@@ -16,9 +16,15 @@ import { isAdmin_S } from "../authentication/server";
 import { sendEmail_S } from "../utils/email";
 import { SQLRow } from "../utils/sql";
 import { deleteFile_S } from "../upload/server";
+import {
+    gCacheSubmission_S,
+    gCacheSubmittable_S,
+    sCacheSubmission_S,
+    sCacheSubmittable_S,
+} from "../utils/redisCaching";
 
 const payload: Awaited<ReturnType<typeof getPayloadClient_S>> = await getPayloadClient_S();
-const db: Db = (await getMongoDB_S()).db("nesco_web");
+const db: Db = (await getMongoDB_S()).db(process.env.MONGODB_DBNAME!);
 
 export interface Submission {
     locked: number;
@@ -61,6 +67,11 @@ export interface AdminSubmissionDeleteOption {
  * @throws {SubmissionError} If slug invalid (InvalidSlug).
  */
 export async function getSubmittable_S(submittableSlug: string) {
+    const out = await gCacheSubmittable_S(submittableSlug);
+    if (out !== undefined) {
+        return out;
+    }
+
     const submittable = (
         await payload.find({
             collection: "submittable",
@@ -70,6 +81,8 @@ export async function getSubmittable_S(submittableSlug: string) {
     if (!submittable) {
         throw new SubmissionError(SubmissionErrorEnum.InvalidSlug);
     }
+
+    await sCacheSubmittable_S(submittable, submittableSlug);
     return submittable;
 }
 
@@ -248,6 +261,12 @@ export async function getSubmission_S(
     }
 
     await validateParams(verifiableDocId, submittableSlug, _isFromServer);
+    if (!adminOption) {
+        const out = await gCacheSubmission_S(verifiableDocId, submittableSlug);
+        if (out !== undefined) {
+            return out;
+        }
+    }
     const collection = _collection ? _collection : await getCollection_S(submittableSlug, db);
 
     if (adminOption) {
@@ -281,10 +300,12 @@ export async function getSubmission_S(
                 .toArray()
         )[0];
     } else {
-        return await collection.findOne<Submission>(
+        const _out = await collection.findOne<Submission>(
             { verifiableId: verifiableDocId },
             { projection: { _id: 0, __v: 0 } }
         );
+        await sCacheSubmission_S(_out, verifiableDocId, submittableSlug);
+        return _out;
     }
 }
 
@@ -375,6 +396,7 @@ export async function updateSubmission_S(
         };
     }
 
+    await sCacheSubmission_S(null, verifiableDocId, submittableSlug);
     await collection.replaceOne(
         {
             verifiableId: verifiableDocId,
@@ -382,6 +404,7 @@ export async function updateSubmission_S(
         newSubmission,
         { upsert: true }
     );
+    await sCacheSubmission_S(newSubmission, verifiableDocId, submittableSlug);
 }
 
 /**
@@ -435,12 +458,17 @@ export async function lockSubmission_S(
         }
     }
 
+    const cacheOut = await gCacheSubmission_S(verifiableDocId, submittableSlug);
     await collection.updateOne(
         {
             verifiableId: verifiableDocId,
         },
         { $set: { locked: 1 } }
     );
+    if (cacheOut) {
+        cacheOut.locked = 1;
+        await sCacheSubmission_S(cacheOut, verifiableDocId, submittableSlug);
+    }
 }
 
 /**
@@ -482,7 +510,7 @@ export async function reviewSubmission_S(
         throw new SubmissionError(SubmissionErrorEnum.SubmissionNotFound);
     }
 
-    const setObj: Record<string, number> = {};
+    const setObj: { locked?: number; level?: number } = {};
     if (verdict) {
         setObj.level = submission.level + 1;
         if (submission.level === submittable.levels.length) {
@@ -494,12 +522,21 @@ export async function reviewSubmission_S(
         setObj.locked = 2;
     }
 
+    const cacheOut = await gCacheSubmission_S(verifiableDocId, submittableSlug);
     await collection.updateOne(
         {
             verifiableId: verifiableDocId,
         },
         { $set: setObj }
     );
+
+    if (cacheOut) {
+        cacheOut.locked = setObj.locked;
+        if (setObj.level) {
+            cacheOut.level = setObj.level;
+        }
+        await sCacheSubmission_S(cacheOut, verifiableDocId, submittableSlug);
+    }
 
     await sendEmail_S([doc.creator, ...doc.shared], message_subject, message_body);
 }
@@ -539,6 +576,7 @@ export async function deleteSubmission_S(
         throw new SubmissionError(SubmissionErrorEnum.SubmissionNotFound);
     }
 
+    await sCacheSubmission_S(null, verifiableDocId, submittableSlug);
     await collection.deleteOne({
         verifiableId: verifiableDocId,
     });
@@ -589,12 +627,19 @@ export async function sendMessageToSubmission_S(
         throw new SubmissionError(SubmissionErrorEnum.SubmissionNotFound);
     }
 
+    const cacheOut = await gCacheSubmission_S(verifiableDocId, submittableSlug);
     await collection.updateOne(
         {
             verifiableId: verifiableDocId,
         },
         { $set: { message_subject, message_body } }
     );
+
+    if (cacheOut) {
+        cacheOut.message_subject = message_subject;
+        cacheOut.message_body = message_body;
+        await sCacheSubmission_S(cacheOut, verifiableDocId, submittableSlug);
+    }
 
     if (sendEmail) {
         await sendEmail_S([doc.creator, ...doc.shared], message_subject, message_body);

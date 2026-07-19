@@ -3,7 +3,7 @@ import { httpErrorHandler_S } from "@/api/errorHandler/server";
 import { isAccessorVerified_S } from "@/api/form/server";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
     try {
         const { slug } = await params;
         const accessor = await req.nextUrl.searchParams.get("accessor");

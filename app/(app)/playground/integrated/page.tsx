@@ -4,7 +4,7 @@ import { Submission } from "./submission";
 
 export default async function Page() {
     return (
-        <div className="bg-[#0a0a0a] text-white" >
+        <div>
             <Auth />
             <hr />
             <br />

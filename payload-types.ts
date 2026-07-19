@@ -129,6 +129,7 @@ export interface Verifiable {
   slug: string;
   verifiable_code: string;
   singleton?: boolean | null;
+  min_shared: number;
   max_shared: number;
   depends_on?: string | null;
   depended_by?:
@@ -328,6 +329,7 @@ export interface VerifiableSelect<T extends boolean = true> {
   slug?: T;
   verifiable_code?: T;
   singleton?: T;
+  min_shared?: T;
   max_shared?: T;
   depends_on?: T;
   depended_by?:

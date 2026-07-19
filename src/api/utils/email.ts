@@ -29,9 +29,9 @@ export async function sendEmail_S(dest: string[], subject: string, message: stri
     });
 
     await transporter.sendMail({
-        from: process.env.SMTP_FROM,
+        from: userArr[idx],
         to: dest.join(", "),
         subject,
-        html: `<h1>Message from me: ${message}</h1>`,
+        html: `${message}`,
     });
 }

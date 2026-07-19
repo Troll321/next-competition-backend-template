@@ -1,13 +1,9 @@
 "use client";
 import "client-only";
-import { useUser } from "@auth0/nextjs-auth0";
 import { APIFetch_C } from "../utils/fetching";
-
-// This is only a remap to help the FE team know this function exists
-/**
- * Hook to retrieve the current user and their loading state.
- */
-export const useUser_C = useUser;
+// useUser_C is now context-backed: reads from UserProvider instead of
+// creating a new subscription per component. Import path stays the same.
+export { useUser_C } from "@/components/providers/UserProvider";
 
 /**
  * Sends a request to the server to trigger a verification email.

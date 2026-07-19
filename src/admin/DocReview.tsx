@@ -1,6 +1,7 @@
 "use client";
 import { Button, toast } from "@payloadcms/ui";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
     getVerifiable_C,
     readDoc_C,
@@ -203,7 +204,7 @@ export const DocReview: React.FC<DocReviewProps> = ({
             await sendMessageToVerifiable_C(
                 verifiableSlug,
                 adminDoc.id,
-                messageSubject || "Message",
+                messageSubject,
                 messageBody,
                 sendEmail
             );
@@ -357,7 +358,7 @@ export const DocReview: React.FC<DocReviewProps> = ({
                     style={{ width: "1.25rem", height: "1.25rem" }}
                 />
                 <h3 className="doc-id" style={{ margin: 0 }}>
-                    Doc ID: {adminDoc.id}
+                    ID: {adminDoc.id}
                 </h3>
             </div>
 
@@ -391,36 +392,38 @@ export const DocReview: React.FC<DocReviewProps> = ({
                 <div className="dependency-section">
                     <h4>Dependencies (Depends On)</h4>
                     <div className="dependency-list">
-                        {adminDoc.dependsOnArr?.map((dep: any, idx: number) => (
-                            <div key={dep.id || idx} className="dependency-item">
-                                {dependencyVerifiable ? (
-                                    <DocReview
-                                        adminDoc={dep}
-                                        verifiable={dependencyVerifiable}
-                                        verifiableSlug={verifiable.depends_on!}
-                                        onUpdate={(updatedDep) => {
-                                            const newDependsOnArr = [
-                                                ...(adminDoc.dependsOnArr || []),
-                                            ];
-                                            newDependsOnArr[idx] =
-                                                updatedDep as any as ReccurSQLRow;
-                                            onUpdate({
-                                                ...adminDoc,
-                                                dependsOnArr: newDependsOnArr,
-                                            });
-                                        }}
-                                        shouldPopulateParent={false}
-                                        selectedDocs={selectedDocs}
-                                        onToggleSelection={onToggleSelection}
-                                        depth={depth + 1}
-                                    />
-                                ) : (
-                                    <div className="loading-placeholder">
-                                        Loading dependency schema...
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                        {adminDoc.dependsOnArr?.map((dep: any, idx: number) => {
+                            return (
+                                <div key={`${dep.id}-${dep.slug}`} className="dependency-item">
+                                    {dependencyVerifiable ? (
+                                        <DocReview
+                                            adminDoc={dep}
+                                            verifiable={dependencyVerifiable}
+                                            verifiableSlug={verifiable.depends_on!}
+                                            onUpdate={(updatedDep) => {
+                                                const newDependsOnArr = [
+                                                    ...(adminDoc.dependsOnArr || []),
+                                                ];
+                                                newDependsOnArr[idx] =
+                                                    updatedDep as any as ReccurSQLRow;
+                                                onUpdate({
+                                                    ...adminDoc,
+                                                    dependsOnArr: newDependsOnArr,
+                                                });
+                                            }}
+                                            shouldPopulateParent={false}
+                                            selectedDocs={selectedDocs}
+                                            onToggleSelection={onToggleSelection}
+                                            depth={depth + 1}
+                                        />
+                                    ) : (
+                                        <div className="loading-placeholder">
+                                            Loading dependency schema...
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
                         {(!adminDoc.dependsOnArr || adminDoc.dependsOnArr.length === 0) && (
                             <p className="none-text">None</p>
                         )}
@@ -433,7 +436,7 @@ export const DocReview: React.FC<DocReviewProps> = ({
                             const depConfig = depSlug ? dependedByConfigs[depSlug] : null;
 
                             return (
-                                <div key={dep.id || idx} className="dependency-item">
+                                <div key={`${dep.id}_${dep.slug}`} className="dependency-item">
                                     {depConfig ? (
                                         <DocReview
                                             adminDoc={dep}
@@ -570,10 +573,11 @@ const FileFieldReview = ({
             const fileInfo = await getVerifiableFileInfo_C(verifiableSlug, adminDocId, fieldKey, {
                 allowRead: true,
             });
-            if (fileInfo.signedUrl && isImage) {
+            if (fileInfo.signedUrl) {
                 setPreviewUrl(fileInfo.signedUrl);
-            } else {
-                window.open(fileInfo.signedUrl, "_blank");
+                if (!isImage) {
+                    window.open(fileInfo.signedUrl, "_blank");
+                }
             }
         } catch (e) {
             handleError(e);
@@ -604,6 +608,13 @@ const FileFieldReview = ({
                 {loading ? "Loading..." : "Preview / Download"}
             </Button>
             {previewUrl && (
+                <div>
+                    <Link href={previewUrl} style={{ textDecoration: "underline" }} target="_blank">
+                        Preview Url
+                    </Link>
+                </div>
+            )}
+            {previewUrl && isImage && (
                 <>
                     <img src={previewUrl} alt="Preview" className="preview-image" />
                     <Button

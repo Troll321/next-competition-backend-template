@@ -13,7 +13,7 @@ import {
 } from "@/api/form/server";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
     try {
         const { slug } = await params;
         const searchParams = await req.nextUrl.searchParams;
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
     }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
     try {
         const { slug } = await params;
 
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
     }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
     try {
         const { slug } = await params;
         const _where = await req.nextUrl.searchParams.get("where");
@@ -98,11 +98,12 @@ export async function PUT(req: NextRequest, { params }: { params: { slug: string
         await updateDoc_S(slug, insert as UnsanitizedFormInsert, where as UnsanitizedFormWhere);
         return NextResponse.json(true, { status: 200 });
     } catch (_err: any) {
+        console.log(_err);
         return httpErrorHandler_S(_err);
     }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
     try {
         const { slug } = await params;
         const searchParams = await req.nextUrl.searchParams;

@@ -20,6 +20,9 @@ import { decodePaymentInfo_SC } from "@/api/utils/string";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { ExpectedError } from "@/api/errorHandler/class";
+import Image from "next/image";
+import { Card } from "../Card";
+import TimCard from "@/modules/dashboard/cards/TimCard";
 
 interface BaseFieldProps {
     name: string;
@@ -37,6 +40,7 @@ interface FileFieldProps extends BaseFieldProps {
     verifiableDocId: number;
     submittableSlug: string;
     level: number;
+    fileInfoResetSignal: number;
 }
 
 function FieldWrapper({
@@ -51,14 +55,14 @@ function FieldWrapper({
     name: string;
 }) {
     return (
-        <div className="mb-4">
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+        <div className="font-quicksand mb-4">
+            <label className="text-md mb-1 block font-bold text-cyan-900">
                 {uiTitle && uiTitle !== "" ? uiTitle : name}
             </label>
-            {uiDescription && uiDescription !== "" && (
-                <p className="mb-2 text-sm text-gray-500">{uiDescription}</p>
-            )}
             {children}
+            {/* {uiDescription && uiDescription !== "" && (
+                <p className="mt-2 text-sm text-cyan-700">{uiDescription}</p>
+            )} */}
         </div>
     );
 }
@@ -81,9 +85,9 @@ function NumberField({
                 onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)}
                 disabled={disabled}
                 readOnly={readOnly}
-                className={`w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-md border border-cyan-900 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     disabled && !readOnly ? "cursor-not-allowed bg-gray-100" : ""
-                } ${disabled ? "text-gray-400 opacity-100" : ""}`}
+                } ${disabled ? "text-gray-400 opacity-100" : "text-black"}`}
             />
         </FieldWrapper>
     );
@@ -121,9 +125,9 @@ function TextField({
                 onChange={handleChange}
                 disabled={disabled}
                 readOnly={readOnly}
-                className={`w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-md border border-cyan-900 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     disabled && !readOnly ? "cursor-not-allowed bg-gray-100" : ""
-                } ${disabled ? "text-gray-400 opacity-100" : ""}`}
+                } ${disabled ? "text-gray-400 opacity-100" : "text-black"}`}
             />
         </FieldWrapper>
     );
@@ -146,7 +150,7 @@ function BooleanField({
                 checked={value ?? false}
                 onChange={(e) => onChange(e.target.checked)}
                 disabled={disabled}
-                className={`h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 ${
+                className={`h-4 w-4 rounded border-cyan-900 text-blue-600 focus:ring-blue-500 ${
                     disabled && !readOnly ? "cursor-not-allowed opacity-50" : ""
                 }`}
             />
@@ -187,9 +191,7 @@ function PaymentField({
             );
             onChange(encodedInfo);
         } catch (error: any) {
-            if (process.env.NODE_ENV !== "production") {
-                console.error("Error processing payment action:", error);
-            }
+            console.error("Error processing payment action:", error);
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -242,7 +244,7 @@ function PaymentField({
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="font-medium text-gray-500">Order ID:</span>
-                                    <span className="font-mono text-xs">{decoded.reference}</span>
+                                    <span className="text-xs">{decoded.reference}</span>
                                 </div>
                             </>
                         )}
@@ -268,9 +270,9 @@ function PaymentField({
                             <button
                                 type="button"
                                 onClick={() => handlePaymentAction(true)}
-                                disabled={loading}
+                                disabled={disabled || loading}
                                 className={`w-full rounded-md bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:outline-none ${
-                                    loading ? "cursor-not-allowed opacity-50" : ""
+                                    disabled || loading ? "cursor-not-allowed opacity-50" : ""
                                 }`}>
                                 {loading ? "Checking..." : "Check Status"}
                             </button>
@@ -323,6 +325,7 @@ function FileField({
     level,
     uiTitle,
     uiDescription,
+    fileInfoResetSignal,
 }: FileFieldProps) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
@@ -335,6 +338,12 @@ function FileField({
     const [previewLoading, setPreviewLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    useEffect(() => {
+        setFileInfo(null);
+        setSelectedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    }, [fileInfoResetSignal]);
+
     const isFileObject = value instanceof File;
     const isUploadedFile = typeof value === "string" && value.length > 0;
 
@@ -345,9 +354,7 @@ function FileField({
                 const metadata = decodeFilePath_SC(decoded.path);
                 setFileMetadata(metadata);
             } catch (error) {
-                if (process.env.NODE_ENV !== "production") {
-                    console.error("Error decoding file path:", error);
-                }
+                console.error("Error decoding file path:", error);
             }
         }
     }, [value, isUploadedFile]);
@@ -394,9 +401,7 @@ function FileField({
             );
             setFileInfo(info);
         } catch (error: any) {
-            if (process.env.NODE_ENV !== "production") {
-                console.error("Error getting file info:", error);
-            }
+            console.error("Error getting file info:", error);
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -415,7 +420,7 @@ function FileField({
 
     return (
         <FieldWrapper uiTitle={uiTitle} uiDescription={uiDescription} name={name}>
-            <div className="space-y-2">
+            <div className="w-full space-y-2">
                 <input
                     ref={fileInputRef}
                     type="file"
@@ -423,19 +428,44 @@ function FileField({
                     onChange={handleFileSelect}
                     accept={mimeTypes.join(",")}
                     disabled={disabled}
-                    className={`w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                        disabled && !readOnly ? "cursor-not-allowed bg-gray-100" : ""
-                    } ${disabled ? "text-gray-400 opacity-100" : ""}`}
+                    className="hidden"
                 />
+                <div className="flex flex-col">
+                    <div
+                        onClick={() => !disabled && fileInputRef.current?.click()}
+                        className={`flex w-full items-center rounded-md border-3 border-cyan-900 px-3 py-2 transition-colors ${
+                            disabled
+                                ? "cursor-not-allowed bg-gray-100"
+                                : "cursor-pointer bg-white hover:border-cyan-700"
+                        }`}>
+                        <span
+                            className={`mr-3 hidden rounded border px-2 py-1 text-xs font-semibold ${
+                                disabled
+                                    ? "border-gray-300 bg-gray-200 text-gray-500"
+                                    : "border-gray-400 bg-gray-100 text-gray-700"
+                            }`}>
+                            Choose File
+                        </span>
+                        <span
+                            className={`truncate text-sm ${disabled ? "text-gray-400" : "text-gray-400"}`}>
+                            {selectedFile
+                                ? selectedFile.name
+                                : isUploadedFile && fileMetadata
+                                  ? fileMetadata.fileName
+                                  : "No File Chosen"}
+                        </span>
+                    </div>
+                    <p className="ml-2 text-xs text-cyan-700">ketuk untuk mengunggah</p>
+                </div>
                 {selectedFile && !isUploadedFile && (
-                    <div className="rounded-md border border-gray-300 p-3">
+                    <div className="rounded-md border border-cyan-900 p-3">
                         <div className="text-sm font-medium">Selected File:</div>
-                        <div className="text-sm text-gray-600">{selectedFile.name}</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-cyan-900">{selectedFile.name}</div>
+                        <div className="text-sm text-cyan-900">
                             Size: {(selectedFile.size / 1024).toFixed(2)} KB
                         </div>
                         {previewUrl && isImageMimeType(selectedFile.type) && (
-                            <img
+                            <Image
                                 src={previewUrl}
                                 alt="Preview"
                                 className="mt-2 max-h-48 rounded-md"
@@ -444,21 +474,21 @@ function FileField({
                     </div>
                 )}
                 {isUploadedFile && fileMetadata && (
-                    <div className="rounded-md border border-gray-300 p-3">
+                    <div className="rounded-md border border-cyan-900 bg-yellow-50 p-3 text-cyan-900">
                         <div className="text-sm font-medium">Uploaded File:</div>
-                        <div className="text-sm text-gray-600">Owner: {fileMetadata.userId}</div>
-                        <div className="text-sm text-gray-600">
+                        {/* <div className="text-sm wrap-break-word">Owner: {fileMetadata.userId}</div> */}
+                        <div className="text-sm">
                             Uploaded: {new Date(parseInt(fileMetadata.unixTime)).toLocaleString()}
                         </div>
-                        <div className="text-sm text-gray-600">File: {fileMetadata.fileName}</div>
+                        <div className="text-sm text-cyan-900">File: {fileMetadata.fileName}</div>
                         <button
                             type="button"
                             onClick={handlePreviewFile}
-                            disabled={previewLoading}
+                            disabled={disabled || previewLoading}
                             className={`mt-2 rounded-md px-3 py-1 text-sm text-white ${
-                                previewLoading
+                                disabled || previewLoading
                                     ? "cursor-not-allowed bg-gray-400"
-                                    : "bg-blue-600 hover:bg-blue-700"
+                                    : "bg-cyan-700 hover:bg-cyan-800"
                             }`}>
                             {previewLoading ? "Loading..." : "Preview File"}
                         </button>
@@ -467,7 +497,7 @@ function FileField({
                                 <a
                                     href={fileInfo.signedUrl}
                                     download
-                                    className="text-sm text-blue-600 hover:underline">
+                                    className="text-sm text-cyan-700 hover:underline">
                                     Download File
                                 </a>
                             </div>
@@ -486,11 +516,13 @@ export function SubmissionForm({
     docId?: number;
     submittableSlug: string;
 }) {
+    const [selectedSubmission, setSelectedSubmission] = useState<string>("paper_submission");
     const [submittable, setSubmittable] = useState<Submittable | null>(null);
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [doc, setDoc] = useState<SQLRow | null>(null);
     const [formData, setFormData] = useState<Record<string, any>>({});
     const [initialFormData, setInitialFormData] = useState<Record<string, any>>({});
+    const [fileInfoResetSignal, setFileInfoResetSignal] = useState(0);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [locking, setLocking] = useState(false);
@@ -561,9 +593,7 @@ export function SubmissionForm({
                     }
                 }
             } catch (error: any) {
-                if (process.env.NODE_ENV !== "production") {
-                    console.error("Error loading submission data:", error);
-                }
+                console.error("Error loading submission data:", error);
                 if (error instanceof ExpectedError) {
                     toast.error(error.name, { description: error.message });
                 }
@@ -640,9 +670,7 @@ export function SubmissionForm({
                 try {
                     await uploadFileToSubmission_C(activeDocId, submittableSlug, name, file);
                 } catch (error: any) {
-                    if (process.env.NODE_ENV !== "production") {
-                        console.error(`Error uploading file ${name}:`, error);
-                    }
+                    console.error(`Error uploading file ${name}:`, error);
                     if (error instanceof ExpectedError) {
                         toast.error(error.name, {
                             description: `File upload failed for ${name}: ` + error.message,
@@ -664,13 +692,12 @@ export function SubmissionForm({
             ) {
                 setInitialFormData(newSub.levels[currentLevelIdx].constraints);
                 setFormData(newSub.levels[currentLevelIdx].constraints);
+                setFileInfoResetSignal((prev) => prev + 1);
             }
 
             toast.success("Saved", { description: "Submission changes saved." });
         } catch (error: any) {
-            if (process.env.NODE_ENV !== "production") {
-                console.error("Error saving submission:", error);
-            }
+            console.error("Error saving submission:", error);
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -684,11 +711,12 @@ export function SubmissionForm({
     };
 
     const handleLock = async () => {
-        if (!doc || !submittable || !activeDocId) return;
+        const targetId = activeDocId;
+        if (!doc || !submittable || !targetId) return;
         setLocking(true);
         try {
-            await lockSubmission_C(activeDocId, submittableSlug);
-            const newSub = await getSubmission_C(activeDocId, submittableSlug);
+            await lockSubmission_C(targetId, submittableSlug);
+            const newSub = await getSubmission_C(targetId, submittableSlug);
             setSubmission(newSub);
             confetti({
                 particleCount: 100,
@@ -697,9 +725,7 @@ export function SubmissionForm({
             });
             toast.success("Locked", { description: "Submission locked successfully." });
         } catch (error: any) {
-            if (process.env.NODE_ENV !== "production") {
-                console.error("Error locking submission:", error);
-            }
+            console.error("Error locking submission:", error);
             if (error instanceof ExpectedError) {
                 toast.error(error.name, { description: error.message });
             } else {
@@ -713,7 +739,37 @@ export function SubmissionForm({
     };
 
     if (loading && !submittable) {
-        return <div>Loading...</div>;
+        return (
+            <div className="mx-auto max-w-4xl animate-pulse space-y-6 p-6">
+                <div className="border-white-900 rounded-md border-2 p-6 shadow-sm ring-1 ring-gray-900/5">
+                    <div className="mb-4 h-8 w-1/2 rounded bg-slate-200" />
+
+                    <div className="mb-6 flex space-x-4">
+                        <div className="h-6 w-20 rounded-full bg-slate-200" />
+                        <div className="h-6 w-24 rounded-full bg-slate-200" />
+                        <div className="h-6 w-24 rounded-full bg-slate-200" />
+                    </div>
+
+                    <div className="mb-6 space-y-4 rounded-md border p-4">
+                        <div className="flex justify-between">
+                            <div className="h-6 w-1/4 rounded bg-slate-200" />
+                            <div className="h-4 w-1/3 rounded bg-slate-200" />
+                        </div>
+                        <div className="h-4 w-1/2 rounded bg-slate-200" />
+
+                        <div className="space-y-2">
+                            <div className="h-5 w-1/5 rounded bg-slate-200" />
+                            <div className="h-12 w-full rounded bg-slate-200" />
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 border-t pt-4">
+                        <div className="h-10 w-24 rounded bg-slate-200" />
+                        <div className="h-10 w-24 rounded bg-slate-200" />
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (!submittable) {
@@ -743,7 +799,8 @@ export function SubmissionForm({
         }
     }
 
-    const formDisabled = doc?.verified !== 2 || !isUserAuthenticated || isDateClosed;
+    const formDisabled =
+        loading || saving || locking || doc?.verified !== 2 || !isUserAuthenticated || isDateClosed;
 
     // Determine current level constraints
     const renderLevel = (levelIndex: number) => {
@@ -765,28 +822,20 @@ export function SubmissionForm({
         const isDisabled = formDisabled; // Global disable if doc not verified or not auth
 
         return (
-            <div key={levelIndex} className="mb-6 rounded-md border p-4">
-                <h4 className="mb-2 flex items-center justify-between text-lg font-semibold">
+            <Card variant="greenInside" key={levelIndex} className="mb-5 flex w-full flex-col">
+                <h4 className="flex items-center justify-between text-3xl font-bold text-cyan-900">
                     <span>
                         {levelConfig.ui_title && levelConfig.ui_title !== ""
                             ? levelConfig.ui_title
                             : `Level ${levelIndex + 1}`}
                     </span>
-                    <span className="text-xs font-normal text-gray-100">
-                        <span className="mr-2">
-                            {levelConfig.start_date &&
-                                `Start: ${new Date(levelConfig.start_date).toLocaleDateString()} `}{" "}
-                        </span>
-                        <span>
-                            {levelConfig.end_date &&
-                                `End: ${new Date(levelConfig.end_date).toLocaleDateString()}`}
-                        </span>
-                    </span>
                 </h4>
                 {levelConfig.ui_description && levelConfig.ui_description !== "" && (
-                    <p className="mb-4 text-sm text-gray-500">{levelConfig.ui_description}</p>
+                    <p className="mb-4 text-sm font-medium text-cyan-900">
+                        {levelConfig.ui_description}
+                    </p>
                 )}
-                <div className="grid gap-4">
+                <div className="grid w-full gap-4">
                     {levelConfig.constraints.map((constraint) => {
                         const commonProps = {
                             name: constraint.name,
@@ -829,6 +878,7 @@ export function SubmissionForm({
                                     verifiableDocId={activeDocId!}
                                     submittableSlug={submittableSlug}
                                     level={levelIndex + 1}
+                                    fileInfoResetSignal={fileInfoResetSignal}
                                 />
                             );
                         }
@@ -836,8 +886,50 @@ export function SubmissionForm({
                         return <TextField key={constraint.name} {...commonProps} />;
                     })}
                 </div>
-            </div>
+                <hr className="my-2 border-cyan-900" />
+                <div className="font-quicksand flex w-full flex-row justify-end gap-3 text-sm font-semibold text-cyan-900">
+                    {/* <h4>
+                        {levelConfig.start_date &&
+                            `Start: ${new Date(levelConfig.start_date).toLocaleDateString()} `}{" "}
+                    </h4> */}
+                    <h4>
+                        {levelConfig.end_date &&
+                            `Tenggat: ${new Date(levelConfig.end_date).toLocaleDateString()}`}
+                    </h4>
+                </div>
+            </Card>
         );
+    };
+
+    const canLockSubmission = (
+        currentSubmission: Submission | null,
+        currentFormData: Record<string, any>
+    ) => {
+        if (formDisabled) return false;
+        if ((currentSubmission?.locked ?? 0) >= 1) return false;
+
+        // Check if there are unsaved changes (only if checking current state)
+        if (currentSubmission === submission && hasChanges()) return false;
+
+        if (!submittable) return false;
+        const currentLevelIdx = (currentSubmission?.level ?? 1) - 1;
+        const currentConstraints = submittable.levels[currentLevelIdx]?.constraints;
+        if (!currentConstraints) return false;
+
+        for (const c of currentConstraints) {
+            const val = currentFormData[c.name];
+            if (val === undefined || val === null || val === "") return false;
+
+            if (c.type === "payment") {
+                try {
+                    const decoded = decodePaymentInfo_SC(val);
+                    if (decoded.status === "pending") return false;
+                } catch (e) {
+                    return false;
+                }
+            }
+        }
+        return true;
     };
 
     const isSaveDisabled = (() => {
@@ -848,162 +940,163 @@ export function SubmissionForm({
         return !hasChanges();
     })();
 
-    const isLockDisabled = (() => {
-        if (formDisabled) return true;
-        if (isLocked >= 1) return true;
-
-        // "It should also be disabled if changes are detected"
-        if (hasChanges()) return true;
-
-        // Check if all current level constraints have values
-        const currentConstraints = submittable.levels[currentLevel - 1].constraints;
-        for (const c of currentConstraints) {
-            const val = formData[c.name];
-            // "all of the input is not null"
-            if (val === undefined || val === null || val === "") return true;
-
-            // "payment field value doesn't start with pending and is not null"
-            if (c.type === "payment") {
-                if (typeof val === "string") {
-                    // Try decode to check status? User says "value doesn't start with pending"
-                    // Realistically, the value is the sql url string. We need to decode it to check status.
-                    // Or maybe the value literally starts with 'pending'?
-                    // No, the value is a SQL URL.
-                    // Let's check the decoded status.
-                    try {
-                        const decoded = decodePaymentInfo_SC(val);
-                        if (decoded.status === "pending") return true;
-                    } catch (e) {
-                        return true; // invalid payment info
-                    }
-                } else {
-                    return true;
-                }
-            }
-        }
-        return false;
-    })();
+    const isLockDisabled = !canLockSubmission(submission, formData);
 
     return (
-        <div className={`mx-auto max-w-4xl space-y-6 p-6 ${formDisabled ? "text-gray-300" : ""}`}>
-            <div className="border-white-900 rounded-md border-2 p-6 shadow-sm ring-1 ring-gray-900/5">
-                <h2 className="text-xl font-bold">
-                    {submittableSlug} submission{" "}
-                    {doc ? `by ${submittable.verifiable} code ${doc.verifiableCode}` : ""}
-                </h2>
-                <div className="mt-2 flex items-center space-x-4">
-                    {!isDateClosed && (
-                        <span
-                            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                                isLocked === 0
-                                    ? "bg-green-50 text-green-700 ring-green-600/20"
-                                    : isLocked === 1
-                                      ? "bg-yellow-50 text-yellow-800 ring-yellow-600/20"
-                                      : "bg-blue-50 text-blue-700 ring-blue-700/10"
-                            }`}>
-                            {isLocked === 0 ? "Unlocked" : isLocked === 1 ? "Locked" : "Reviewed"}
-                        </span>
-                    )}
-                    {doc ? (
-                        <span
-                            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                                doc.verified === 2
-                                    ? "bg-green-50 text-green-700 ring-green-600/20"
+        <div className="flex flex-col gap-20">
+            {/* Submission Info Header */}
+            <TimCard submittableSlug={submittableSlug} doc={doc} />
+
+            <div className="mb-10 flex flex-col gap-2">
+                {/* Submission Status Header */}
+                <div className="text-blue-900">
+                    {/* <h2 className="text-xl font-bold">
+                        {submittableSlug}{" "}
+                        {doc ? `by ${submittable.verifiable} code ${doc.verifiableCode}` : ""}
+                    </h2> */}
+                    <div className="mt-2 flex items-center space-x-4">
+                        {doc ? (
+                            <span
+                                className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                                    doc.verified === 2
+                                        ? "bg-green-50 text-green-700 ring-green-600/20"
+                                        : doc.verified === -1
+                                          ? "bg-red-50 text-red-700 ring-red-600/20"
+                                          : doc.verified === 1
+                                            ? "bg-blue-50 text-blue-700 ring-blue-700/10"
+                                            : "bg-gray-50 text-gray-600 ring-gray-500/10"
+                                }`}>
+                                {doc.verified === 2
+                                    ? "Tim sudah terverifikasi "
                                     : doc.verified === -1
-                                      ? "bg-red-50 text-red-700 ring-red-600/20"
+                                      ? "Verifikasi tim ditolak "
                                       : doc.verified === 1
-                                        ? "bg-blue-50 text-blue-700 ring-blue-700/10"
-                                        : "bg-gray-50 text-gray-600 ring-gray-500/10"
-                            }`}>
-                            {doc.verified === 2
-                                ? "Doc Accepted"
-                                : doc.verified === -1
-                                  ? "Doc Rejected"
-                                  : doc.verified === 1
-                                    ? "Doc Requested"
-                                    : "Doc Not Requested"}
-                        </span>
-                    ) : (
-                        isUserAuthenticated && (
-                            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-600/20 ring-inset">
-                                Doc Not Found
+                                        ? "Tim sedang dalam proses verifikasi "
+                                        : "Tim belum diverifikasi"}
                             </span>
-                        )
-                    )}
-                    <span className="rounded-md bg-gray-100 px-3 py-0.5 text-sm text-gray-900">
-                        Level: {currentLevel}
-                    </span>
-                    {isDateClosed && (
-                        <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-600/20 ring-inset">
-                            Closed
-                        </span>
-                    )}
-                </div>
-
-                {isUserAuthenticated && (!doc || (doc && doc.verified < 2)) && (
-                    <div className="mt-2 text-sm text-yellow-600">
-                        {submittable.verifiable} should be accepted first
-                    </div>
-                )}
-
-                {submission?.message_subject && submission.message_subject !== "" && (
-                    <div className="mt-4 rounded-md border-l-4 border-blue-400 bg-blue-50 p-4">
-                        <div className="font-semibold text-blue-800">
-                            {submission.message_subject}
-                        </div>
-                        {submission.message_body && submission.message_body !== "" && (
-                            <div className="mt-2 text-sm text-blue-700">
-                                {submission.message_body}
-                            </div>
+                        ) : (
+                            isUserAuthenticated && (
+                                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-600/20 ring-inset">
+                                    Doc Not Found
+                                </span>
+                            )
+                        )}
+                        {!isDateClosed && (
+                            <span
+                                className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                                    isLocked === 0
+                                        ? "bg-green-50 text-green-700 ring-green-600/20"
+                                        : isLocked === 1
+                                          ? "bg-yellow-50 text-yellow-800 ring-yellow-600/20"
+                                          : "bg-blue-50 text-blue-700 ring-blue-700/10"
+                                }`}>
+                                {isLocked === 0
+                                    ? "Belum lock submission"
+                                    : isLocked === 1
+                                      ? "Submision terkunci, menunggu penilaian"
+                                      : "Tahap Penilaian"}
+                            </span>
+                        )}
+                        {/* <span className="rounded-md bg-gray-100 px-3 py-0.5 text-sm text-gray-900">
+                            Level: {currentLevel}
+                        </span> */}
+                        {isDateClosed && (
+                            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-red-600/20 ring-inset">
+                                Closed
+                            </span>
                         )}
                     </div>
-                )}
-                {(!submission?.message_subject || submission.message_subject === "") &&
-                    submission?.message_body &&
-                    submission.message_body !== "" && (
-                        <div className="mt-4 rounded-md border-l-4 border-blue-400 bg-blue-50 p-4">
-                            <div className="text-sm text-blue-700">{submission.message_body}</div>
+
+                    {isUserAuthenticated && (!doc || (doc && doc.verified < 2)) && (
+                        <div className="mt-2 text-sm text-blue-900">
+                            * {!doc ? "" : doc.nama_tim} should be accepted first
                         </div>
                     )}
 
-                {(!user || !user.email_verified) && (
-                    <div className="mt-4 rounded-md bg-red-50 p-4 text-red-700">
-                        Please log in to verify your email to access this form.
+                    {submission?.message_subject && submission.message_subject !== "" && (
+                        <div className="mt-4 rounded-md border-l-4 border-blue-400 bg-blue-50 p-4">
+                            <div className="font-semibold text-blue-800">
+                                {submission.message_subject}
+                            </div>
+                            {submission.message_body && submission.message_body !== "" && (
+                                <div className="mt-2 text-sm text-blue-700">
+                                    {submission.message_body}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {(!submission?.message_subject || submission.message_subject === "") &&
+                        submission?.message_body &&
+                        submission.message_body !== "" && (
+                            <div className="mt-4 rounded-md border-l-4 border-blue-400 bg-blue-50 p-4">
+                                <div className="text-sm text-blue-700">
+                                    {submission.message_body}
+                                </div>
+                            </div>
+                        )}
+
+                    {(!user || !user.email_verified) && (
+                        <div className="mt-4 rounded-md bg-red-50 p-4 text-red-700">
+                            Please log in to verify your email to access this form.
+                        </div>
+                    )}
+                </div>
+
+                {/* Render levels available */}
+                <Card variant="green" className="flex w-full flex-col">
+                    <h2 className="font-quicksand mt-2 mb-6 text-center text-2xl font-bold tracking-wide text-white xl:text-[28px]">
+                        Submission
+                    </h2>
+                    {Array.from({ length: currentLevel }).map((_, idx) => renderLevel(idx))}
+                </Card>
+                {/* Action Buttons */}
+                {currentLevel <= submittable.levels.length && (
+                    <div className="flex justify-center space-x-4">
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaveDisabled || saving}
+                            className={`rounded-md px-4 py-2 text-white ${
+                                isSaveDisabled || saving
+                                    ? "cursor-not-allowed bg-gray-400"
+                                    : "bg-cyan-700 hover:bg-cyan-900"
+                            }`}>
+                            {saving ? "Saving..." : "Save"}
+                        </button>
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                onClick={() => {
+                                    if (
+                                        window.confirm(
+                                            "Apakah Anda yakin ingin mengunci submission ini?\nTindakan ini tidak dapat dibatalkan (irreversible) dan Anda tidak akan bisa mengubah file lagi setelah dikunci."
+                                        )
+                                    ) {
+                                        handleLock();
+                                    }
+                                }}
+                                disabled={!canLockSubmission(submission, formData) || locking}
+                                className={`rounded-md px-4 py-2 text-white ${
+                                    !canLockSubmission(submission, formData) || locking
+                                        ? "cursor-not-allowed bg-gray-400"
+                                        : "bg-cyan-700 hover:bg-cyan-900"
+                                }`}>
+                                {locking ? "Locking..." : "Lock Submission"}
+                            </button>
+                            <div className="group relative z-20 flex flex-col items-center">
+                                <div className="flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-300">
+                                    i
+                                </div>
+                                <div className="absolute bottom-full left-1/2 mb-2 w-[200px] -translate-x-1/2 scale-0 rounded-md bg-gray-800 px-3 py-2 text-center text-xs font-medium text-white opacity-0 transition-all group-hover:scale-100 group-hover:opacity-100">
+                                    Setelah Lock Submission, file tidak dapat diubah lagi.
+                                    <div className="absolute top-full left-1/2 -ml-1 border-4 border-transparent border-t-gray-800"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
+                {currentLevel > submittable.levels.length && (
+                    <div className="mt-4 text-center text-gray-500">All levels completed.</div>
+                )}
             </div>
-
-            {/* Render levels available */}
-            <div>{Array.from({ length: currentLevel }).map((_, idx) => renderLevel(idx))}</div>
-
-            {/* Action Buttons */}
-            {currentLevel <= submittable.levels.length && (
-                <div className="flex space-x-4">
-                    <button
-                        onClick={handleSave}
-                        disabled={isSaveDisabled || saving}
-                        className={`rounded-md px-4 py-2 text-white ${
-                            isSaveDisabled || saving
-                                ? "cursor-not-allowed bg-gray-400"
-                                : "bg-blue-600 hover:bg-blue-700"
-                        }`}>
-                        {saving ? "Saving..." : "Save"}
-                    </button>
-                    <button
-                        onClick={handleLock}
-                        disabled={isLockDisabled || locking}
-                        className={`rounded-md px-4 py-2 text-white ${
-                            isLockDisabled || locking
-                                ? "cursor-not-allowed bg-gray-400"
-                                : "bg-green-600 hover:bg-green-700"
-                        }`}>
-                        {locking ? "Locking..." : "Lock Submission"}
-                    </button>
-                </div>
-            )}
-            {currentLevel > submittable.levels.length && (
-                <div className="mt-4 text-center text-gray-500">All levels completed.</div>
-            )}
         </div>
     );
 }

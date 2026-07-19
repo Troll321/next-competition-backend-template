@@ -24,5 +24,5 @@ export function getLogoutURL_SC(redirect: (typeof ALLOWED_LOGOUT_REDIRECTS)[numb
     if (!ALLOWED_LOGOUT_REDIRECTS.includes(redirect)) {
         throw new ExpectedAuthError(ExpectedAuthErrorEnum.InvalidRedirect);
     }
-    return `/auth/logout?federated&returnTo=${process.env.NEXT_PUBLIC_APP_BASE_URL}${redirect}`;
+    return `/auth/logout?returnTo=${process.env.NEXT_PUBLIC_APP_BASE_URL}${redirect}`;
 }

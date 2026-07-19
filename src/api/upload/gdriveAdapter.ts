@@ -14,7 +14,7 @@ export class GDriveAdapter implements StorageAdapter {
     async uploadFile_S(userId: string, file: File): Promise<string> {
         const res = await this.drive.files.create({
             requestBody: {
-                name: encodeFilePath_SC(userId, file),
+                name: file.name,
                 mimeType: file.type,
                 parents: [this.driveId],
                 driveId: this.driveId,

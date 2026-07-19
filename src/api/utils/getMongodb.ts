@@ -1,4 +1,4 @@
-import "server-only";
+// import "server-only";
 import { Db, MongoClient } from "mongodb";
 
 export const runtime = "nodejs";
@@ -33,6 +33,19 @@ export async function getCollection_S(submittableSlug: string, myDb: Db) {
     } catch {
         await myDb.createCollection(submittableSlug);
         await collection.createIndex({ verifiableId: 1 }, { name: "verifiableIdIDX" });
+    }
+    return collection;
+}
+
+export async function getVersionCollection_S(myDb: Db) {
+    const collection = myDb.collection("versions");
+    try {
+        if (!(await collection.indexExists("myTypeIDX"))) {
+            await collection.createIndex({ type: 1 }, { name: "myTypeIDX" });
+        }
+    } catch {
+        await myDb.createCollection("versions");
+        await collection.createIndex({ type: 1 }, { name: "myTypeIDX" });
     }
     return collection;
 }

@@ -2,7 +2,7 @@ import { httpErrorHandler_S } from "@/api/errorHandler/server";
 import { getSubmittable_S } from "@/api/submission/server";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { submittable_slug: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ submittable_slug: string }> }) {
     try {
         const { submittable_slug } = await params;
 
